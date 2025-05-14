@@ -4,6 +4,7 @@
 import * as React from "react"
 import { ChevronDown, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
 
 export interface SelectOption {
   value: string
@@ -61,7 +62,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
           onClick={() => !disabled && setOpen(!open)}
           className={cn(
             "flex h-10 w-full items-center justify-between rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            error ? "border-red-500" : "border-input",
+            error ? "border-red-300" : "border-input",
             disabled && "opacity-50 cursor-not-allowed"
           )}
           disabled={disabled}
@@ -75,10 +76,16 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
         </button>
 
         {open && (
-          <div className="absolute z-50 w-full min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 mt-1">
+          <motion.div 
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.2 }}
+            className="absolute z-50 w-full min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md mt-1"
+          >
             <ul className="max-h-60 overflow-auto p-1" role="listbox">
               {options.map((option) => (
-                <li
+                <motion.li
                   key={option.value}
                   role="option"
                   aria-selected={value === option.value}
@@ -88,6 +95,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                       setOpen(false)
                     }
                   }}
+                  whileHover={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
                   className={cn(
                     "relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors",
                     value === option.value ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
@@ -98,10 +106,10 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
                     {value === option.value && <Check className="h-4 w-4" />}
                   </span>
                   <span className="truncate">{option.label}</span>
-                </li>
+                </motion.li>
               ))}
             </ul>
-          </div>
+          </motion.div>
         )}
       </div>
     )

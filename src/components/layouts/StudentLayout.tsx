@@ -7,9 +7,11 @@ import { usePathname } from "next/navigation";
 import { clearAuthTokens } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/footer";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 interface StudentLayoutProps {
   children: React.ReactNode;
@@ -18,6 +20,7 @@ interface StudentLayoutProps {
 export default function StudentLayout({ children }: StudentLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const handleLogout = () => {
     clearAuthTokens();
@@ -27,14 +30,33 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navbar - using the same background color as login page heading */}
-      <nav className="bg-gradient-to-r from-gray-800 to-gray-900 text-white shadow-md">
+      {/* Navbar - keeping original color scheme */}
+      <motion.nav 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-gradient-to-r from-gray-800 to-gray-900 text-white shadow-md sticky top-0 z-50"
+      >
         <div className="container mx-auto px-4 py-3">
           <div className="flex justify-between items-center">
             <div className="flex space-x-4 items-center">
-              <Link href="/student" className="font-semibold text-lg">
-                UNDIP Emergency
+              <Link href="/student" className="font-semibold text-lg flex items-center">
+                <motion.div
+                  whileHover={{ rotate: 10 }}
+                  className="mr-2"
+                >
+                  <Image
+                    src="/images/Undip-Logo.png"
+                    alt="UNDIP Logo"
+                    width={24}
+                    height={24}
+                    className="object-contain"
+                  />
+                </motion.div>
+                <span>UNDIP Emergency</span>
               </Link>
+              
+              {/* Desktop Navigation */}
               <div className="hidden sm:flex space-x-1">
                 <Link
                   href="/student"
@@ -58,43 +80,89 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
                 </Link>
               </div>
             </div>
-            <Button variant="ghost" onClick={handleLogout} className="text-white">
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            
+            {/* Desktop Logout Button */}
+            <div className="hidden sm:block">
+              <Button variant="ghost" onClick={handleLogout} className="text-white hover:bg-white/20">
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+            
+            {/* Mobile Menu Button */}
+            <button
+              className="sm:hidden p-2 rounded-md text-white hover:bg-white/10 transition-colors"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
           </div>
           
-          {/* Mobile navigation */}
-          <div className="sm:hidden flex justify-center mt-1 space-x-2">
-            <Link
-              href="/student"
-              className={`px-3 py-1.5 rounded-md text-sm font-semibold flex-1 text-center ${
-                pathname === "/student"
-                  ? "bg-white/20 text-white"
-                  : "text-gray-300 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              Panic Button
-            </Link>
-            <Link
-              href="/student/report"
-              className={`px-3 py-1.5 rounded-md text-sm font-semibold flex-1 text-center ${
-                pathname === "/student/report"
-                  ? "bg-white/20 text-white"
-                  : "text-gray-300 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              Report with Photo
-            </Link>
-          </div>
+          {/* Mobile Navigation */}
+          <AnimatePresence>
+            {isMenuOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="sm:hidden overflow-hidden mt-2"
+              >
+                <div className="flex flex-col p-2 space-y-1">
+                  <Link
+                    href="/student"
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`px-4 py-3 rounded-md text-sm font-semibold transition-colors ${
+                      pathname === "/student"
+                        ? "bg-white/20 text-white"
+                        : "text-gray-300 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    Panic Button
+                  </Link>
+                  <Link
+                    href="/student/report"
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`px-4 py-3 rounded-md text-sm font-semibold transition-colors ${
+                      pathname === "/student/report"
+                        ? "bg-white/20 text-white"
+                        : "text-gray-300 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    Report with Photo
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    className="justify-start px-4 py-3 text-gray-300 hover:bg-white/10 hover:text-white"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Main content */}
-      <main className="flex-grow">{children}</main>
+      <main className="flex-grow">
+        {children}
+      </main>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer with animation */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+      >
+        <Footer />
+      </motion.div>
     </div>
   );
 }

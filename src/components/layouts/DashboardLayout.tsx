@@ -1,17 +1,18 @@
 // src/components/layouts/DashboardLayout.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { clearAuthTokens, getUserData } from "@/lib/auth";
 import { toast } from "sonner";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { 
   Users, 
   FileText, 
   Settings, 
   Bell, 
-  ChevronDown, 
+  ChevronLeft,
   LogOut, 
   Sliders, 
   PieChart,
@@ -30,7 +31,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Footer from "@/components/footer";
-import Link from "next/link";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -40,7 +40,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [userData, setUserData] = useState<any>(null);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Get user data from localStorage
@@ -60,8 +61,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     router.push("/login");
   };
 
-  const getSidebarWidth = () => {
-    return isSidebarCollapsed ? "w-16" : "w-64";
+  // Animation variants
+  const sidebarVariants = {
+    expanded: {
+      width: "16rem",
+      transition: { duration: 0.3, ease: "easeInOut" }
+    },
+    collapsed: {
+      width: "5rem",
+      transition: { duration: 0.3, ease: "easeInOut" }
+    }
+  };
+
+  const textVariants = {
+    expanded: {
+      opacity: 1,
+      x: 0,
+      display: "block",
+      transition: { delay: 0.1, duration: 0.2 }
+    },
+    collapsed: {
+      opacity: 0,
+      x: -10,
+      transitionEnd: { display: "none" },
+      transition: { duration: 0.2 }
+    }
   };
 
   const getInitials = (name: string) => {
@@ -77,114 +101,114 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return pathname === path;
   };
 
+  // Menu items
+  const menuItems = [
+    { icon: PieChart, label: "Overview", path: "/dashboard" },
+    { icon: Users, label: "Volunteers", path: "/dashboard/volunteers" },
+    { icon: FileText, label: "Reports", path: "/dashboard/reports" }
+  ];
+
   return (
     <div className="flex min-h-screen bg-gray-50 flex-col">
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className={`bg-white border-r border-gray-200 transition-all duration-300 ease-in-out ${getSidebarWidth()}`}>
+        {/* Animated Sidebar */}
+        <motion.div 
+          ref={sidebarRef}
+          className="bg-white border-r border-gray-200 h-screen overflow-hidden relative"
+          initial="collapsed"
+          animate={isSidebarExpanded ? "expanded" : "collapsed"}
+          variants={sidebarVariants}
+          onHoverStart={() => setIsSidebarExpanded(true)}
+          onHoverEnd={() => setIsSidebarExpanded(false)}
+        >
           <div className="flex flex-col h-full">
-            <div className="h-16 border-b border-gray-200 flex items-center px-4">
-              <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'space-x-3'}`}>
-                <div className="w-8 h-8 rounded-md overflow-hidden">
+            {/* Logo Section */}
+            <div className="h-16 flex items-center px-4 border-b border-gray-200">
+              <div className="flex items-center justify-center w-full">
+                <div className="rounded-full bg-blue-50 w-10 h-10 flex items-center justify-center overflow-hidden">
                   <Image 
                     src="/images/Undip-Logo.png" 
                     alt="UNDIP Logo"
-                    width={32} 
-                    height={32}
-                    className="object-contain"
+                    width={40} 
+                    height={40}
+                    className="object-cover"
                   />
                 </div>
-                {!isSidebarCollapsed && <span className="font-semibold text-lg">UNDIP Admin</span>}
+                <motion.span
+                  variants={textVariants}
+                  className="ml-1 font-semibold text-lg text-gray-1000"
+                >
+                  UNDIP Admin
+                </motion.span>
               </div>
             </div>
-            <div className="flex-1 py-6 overflow-auto">
-              <ul className="space-y-1 px-2">
-                <li>
-                  <Link
-                    href="/dashboard"
-                    className={`flex items-center w-full py-2 px-3 rounded-lg transition-colors ${
-                      isActive("/dashboard")
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
+
+            {/* Menu Items */}
+            <div className="flex-1 py-6 px-3 space-y-2">
+              {menuItems.map((item) => {
+                const isItemActive = isActive(item.path);
+                return (
+                  <motion.div
+                    key={item.path}
+                    className="relative"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <PieChart size={20} />
-                    {!isSidebarCollapsed && <span className="ml-3">Overview</span>}
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/dashboard/volunteers"
-                    className={`flex items-center w-full py-2 px-3 rounded-lg transition-colors ${
-                      isActive("/dashboard/volunteers")
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <Users size={20} />
-                    {!isSidebarCollapsed && <span className="ml-3">Volunteers</span>}
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/dashboard/reports"
-                    className={`flex items-center w-full py-2 px-3 rounded-lg transition-colors ${
-                      isActive("/dashboard/reports")
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <FileText size={20} />
-                    {!isSidebarCollapsed && <span className="ml-3">Reports</span>}
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/dashboard/analytics"
-                    className={`flex items-center w-full py-2 px-3 rounded-lg transition-colors ${
-                      isActive("/dashboard/analytics")
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <BarChart3 size={20} />
-                    {!isSidebarCollapsed && <span className="ml-3">Analytics</span>}
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/dashboard/settings"
-                    className={`flex items-center w-full py-2 px-3 rounded-lg transition-colors ${
-                      isActive("/dashboard/settings")
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <Settings size={20} />
-                    {!isSidebarCollapsed && <span className="ml-3">Settings</span>}
-                  </Link>
-                </li>
-              </ul>
+                    <div
+                      onClick={() => router.push(item.path)}
+                      className={`
+                        flex items-center px-3 py-3 rounded-lg cursor-pointer
+                        transition-all duration-300 group
+                        ${isItemActive 
+                          ? 'bg-blue-50 text-blue-600' 
+                          : 'hover:bg-gray-50 text-gray-600 hover:text-blue-600'
+                        }
+                      `}
+                    >
+                      <div className="relative">
+                        <item.icon className={`w-5 h-5 ${isItemActive ? 'text-blue-600' : 'group-hover:text-blue-600'}`} />
+                        {isItemActive && (
+                          <motion.div
+                            layoutId="activeIndicator"
+                            className="absolute -left-1 -right-1 -top-1 -bottom-1 rounded-md bg-blue-100/50 -z-10"
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                          />
+                        )}
+                      </div>
+                      <motion.span
+                        variants={textVariants}
+                        className="ml-3 font-medium"
+                      >
+                        {item.label}
+                      </motion.span>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
 
-            <div className="mt-auto border-t border-gray-200 p-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full flex justify-center"
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            {/* Logout Button */}
+            <div className="p-3 mb-4">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <ChevronDown
-                  size={18}
-                  className={`transform transition-transform ${
-                    isSidebarCollapsed ? "rotate-90" : "-rotate-90"
-                  }`}
-                />
-                {!isSidebarCollapsed && <span className="ml-2">Collapse</span>}
-              </Button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center px-3 py-3 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors duration-300"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <motion.span
+                    variants={textVariants}
+                    className="ml-3 font-medium"
+                  >
+                    Logout
+                  </motion.span>
+                </button>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Main content */}
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -200,13 +224,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   className="object-contain"
                 />
                 <span className="font-semibold">UNDIP Emergency</span>
-              </div>
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                <Input
-                  placeholder="Search..."
-                  className="pl-10 rounded-full bg-gray-50 border-none focus:bg-white"
-                />
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -239,10 +256,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       <DropdownMenuSeparator />
                     </>
                   )}
-                  <DropdownMenuItem className="cursor-pointer" onClick={() => router.push('/dashboard/settings')}>
-                    <Sliders className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer text-red-600" onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
@@ -256,7 +269,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <main className="flex-1 overflow-auto p-6">
             {children}
           </main>
-        </div>
+        </div>/
       </div>
       
       {/* Footer */}

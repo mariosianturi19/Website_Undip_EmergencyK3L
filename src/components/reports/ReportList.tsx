@@ -1,7 +1,7 @@
 // src/components/reports/ReportList.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, MouseEvent } from "react";
 import { toast } from "sonner";
 import { 
   RefreshCw, 
@@ -16,7 +16,13 @@ import {
   User,
   MapPin,
   Info,
-  X
+  X,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  MoreHorizontal,
+  Calendar,
+  SlidersHorizontal
 } from "lucide-react";
 import { getAccessToken } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -32,7 +38,8 @@ import {
   Select,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Define interface for report and user
 interface ReportUser {
@@ -88,10 +95,13 @@ export default function ReportList() {
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [sortField, setSortField] = useState<string>('date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   useEffect(() => {
     fetchReports();
@@ -114,16 +124,16 @@ export default function ReportList() {
           "Content-Type": "application/json",
         },
       });
-
+      
       if (!response.ok) {
         throw new Error(`Failed to fetch reports: ${response.status}`);
       }
-
+      
       const data = await response.json();
       console.log("Reports data:", data);
       
       // Ensure data is an array
-      const reportsArray = Array.isArray(data) ? data : [];
+      const reportsArray = Array.isArray(data) ? data : data.data || [];
       setReports(reportsArray);
     } catch (error) {
       console.error("Error fetching reports:", error);
@@ -144,6 +154,20 @@ export default function ReportList() {
       minute: '2-digit'
     };
     return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  // Format time ago
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    
+    return formatDate(dateString);
   };
 
   // Format problem type for better display
@@ -184,183 +208,528 @@ export default function ReportList() {
     }
   };
 
+  // Toggle sort direction or change sort field
+  const handleSort = (field: string) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  // Get sort icon
+  const getSortIcon = (field: string) => {
+    if (field !== sortField) return <ChevronDown className="h-4 w-4 opacity-40" />;
+    return sortDirection === 'asc' ? (
+      <ChevronUp className="h-4 w-4 text-blue-600" />
+    ) : (
+      <ChevronDown className="h-4 w-4 text-blue-600" />
+    );
+  };
+
+  // Sort reports
+  const sortReports = (a: Report, b: Report) => {
+    let valueA, valueB;
+    
+    switch (sortField) {
+      case 'date':
+        valueA = new Date(a.created_at).getTime();
+        valueB = new Date(b.created_at).getTime();
+        break;
+      case 'status':
+        valueA = a.status;
+        valueB = b.status;
+        break;
+      case 'location':
+        valueA = a.location.toLowerCase();
+        valueB = b.location.toLowerCase();
+        break;
+      case 'type':
+        valueA = a.problem_type;
+        valueB = b.problem_type;
+        break;
+      default:
+        valueA = new Date(a.created_at).getTime();
+        valueB = new Date(b.created_at).getTime();
+    }
+    
+    if (sortDirection === 'asc') {
+      return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+    } else {
+      return valueA > valueB ? -1 : valueA < valueB ? 1 : 0;
+    }
+  };
+
   // Filter the reports based on search query and filters
-  const filteredReports = reports.filter(report => {
-    // Text search
-    const matchesSearch = 
-      report.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      String(report.id).includes(searchQuery);
-    
-    // Status filter
-    const matchesStatus = statusFilter === "all" || report.status === statusFilter;
-    
-    // Type filter
-    const matchesType = typeFilter === "all" || report.problem_type === typeFilter;
-    
-    return matchesSearch && matchesStatus && matchesType;
-  });
+  const filteredReports = reports
+    .filter(report => {
+      // Text search
+      const matchesSearch = 
+        report.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        report.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        report.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        String(report.id).includes(searchQuery);
+      
+      // Status filter
+      const matchesStatus = statusFilter === "all" || report.status === statusFilter;
+      
+      // Type filter
+      const matchesType = typeFilter === "all" || report.problem_type === typeFilter;
+      
+      return matchesSearch && matchesStatus && matchesType;
+    })
+    .sort(sortReports);
+
+  // View report detail
+  const handleViewReport = (report: Report) => {
+    setSelectedReport(report);
+    setIsDetailOpen(true);
+  };
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.05 
+      } 
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { type: "spring", stiffness: 100 }
+    }
+  };
+
+  const detailVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { type: "spring", stiffness: 300, damping: 30 }
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.95,
+      transition: { duration: 0.2 }
+    }
+  };
+
+  function handleRefresh(event: MouseEvent<HTMLButtonElement>): void {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Reports</h1>
-        <Button onClick={fetchReports} disabled={isRefreshing}>
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+      >
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Reports</h1>
+          <p className="text-gray-500 mt-1">View and manage user submitted reports</p>
+        </div>
+        <Button
+          onClick={handleRefresh}
+          variant="outline"
+          className="border-gray-200"
+          disabled={isRefreshing}
+        >
           {isRefreshing ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
           ) : (
             <RefreshCw className="h-4 w-4 mr-2" />
           )}
           Refresh
         </Button>
-      </div>
+      </motion.div>
 
-      {/* Filters and Search */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle>Filters</CardTitle>
-          <CardDescription>Filter and search reports</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <Input
-                placeholder="Search reports..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <Card className="border border-gray-200 shadow-sm">
+          <CardHeader className="pb-3 border-b">
+            <CardTitle className="text-xl font-bold text-gray-800">Filters</CardTitle>
+            <CardDescription>
+              Filter and search reports
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <Input
+                  placeholder="Search reports..."
+                  className="pl-10 border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              <Select
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+                options={statusOptions}
+                className="border-gray-200"
+              />
+              
+              <Select
+                value={typeFilter}
+                onValueChange={setTypeFilter}
+                options={problemTypeOptions}
+                className="border-gray-200"
               />
             </div>
-            
-            <Select
-              value={statusFilter}
-              onValueChange={setStatusFilter}
-              options={statusOptions}
-            />
-            
-            <Select
-              value={typeFilter}
-              onValueChange={setTypeFilter}
-              options={problemTypeOptions}
-            />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-      {/* Reports List */}
-      {isLoading ? (
-        <div className="flex justify-center p-12">
-          <Loader2 className="h-12 w-12 animate-spin text-gray-400" />
-        </div>
-      ) : filteredReports.length === 0 ? (
-        <div className="bg-white shadow rounded-lg p-12 text-center">
-          <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No reports found</h3>
-          <p className="text-gray-500">
-            {searchQuery || statusFilter !== "all" || typeFilter !== "all"
-              ? "Try changing your search or filter criteria"
-              : "There are no reports in the system yet"}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredReports.map((report) => {
-            const statusBadge = getStatusBadge(report.status);
-            return (
-              <Card key={report.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                <div className="relative h-48 overflow-hidden bg-gray-100">
-                  {report.photo_url && (
-                    // eslint-disable-next-line
-                    <img
-                      src={report.photo_url}
-                      alt={`Report #${report.id}`}
-                      className="w-full h-full object-cover"
-                    />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="border border-gray-200 shadow-sm">
+          <CardHeader className="pb-3 border-b">
+            <CardTitle className="text-xl font-bold text-gray-800">Report List</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {isLoading ? (
+              <div className="flex justify-center items-center p-12">
+                <Loader2 className="h-12 w-12 animate-spin text-gray-400" />
+              </div>
+            ) : filteredReports.length === 0 ? (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center p-12"
+              >
+                <div className="flex flex-col items-center justify-center">
+                  <div className="rounded-full bg-gray-100 p-4 mb-4">
+                    <FileText className="h-8 w-8 text-gray-400" />
+                  </div>
+                  {searchQuery || statusFilter !== "all" || typeFilter !== "all" ? (
+                    <>
+                      <h3 className="text-lg font-medium text-gray-800 mb-1">No matching reports</h3>
+                      <p className="text-gray-500 mb-4">Try changing your search or filter criteria</p>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setSearchQuery('');
+                          setStatusFilter('all');
+                          setTypeFilter('all');
+                        }}
+                        className="border-gray-200"
+                      >
+                        Clear filters
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-lg font-medium text-gray-800 mb-1">No reports found</h3>
+                      <p className="text-gray-500 mb-4">There are currently no reports in the system</p>
+                      <Button 
+                        variant="outline"
+                        onClick={handleRefresh}
+                        className="border-gray-200"
+                      >
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Refresh
+                      </Button>
+                    </>
                   )}
-                  <div className="absolute top-2 right-2">
-                    <Badge className={`${statusBadge.color} flex items-center px-3 py-1 border`}>
-                      {statusBadge.icon}
-                      <span>{report.status.replace(/_/g, ' ').toUpperCase()}</span>
-                    </Badge>
-                  </div>
                 </div>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
+              </motion.div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 text-gray-700 text-sm">
+                    <tr>
+                      <th className="px-4 py-3 text-left">
+                        <button
+                          className="flex items-center font-medium"
+                          onClick={() => handleSort('date')}
+                        >
+                          Date
+                          {getSortIcon('date')}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-left">
+                        <span className="font-medium">Reporter</span>
+                      </th>
+                      <th className="px-4 py-3 text-left">
+                        <button
+                          className="flex items-center font-medium"
+                          onClick={() => handleSort('location')}
+                        >
+                          Location
+                          {getSortIcon('location')}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-left">
+                        <button
+                          className="flex items-center font-medium"
+                          onClick={() => handleSort('type')}
+                        >
+                          Problem Type
+                          {getSortIcon('type')}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-left">
+                        <button
+                          className="flex items-center font-medium"
+                          onClick={() => handleSort('status')}
+                        >
+                          Status
+                          {getSortIcon('status')}
+                        </button>
+                      </th>
+                      <th className="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <motion.tbody
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="divide-y divide-gray-100"
+                  >
+                    {filteredReports.map((report) => {
+                      const statusBadge = getStatusBadge(report.status);
+                      return (
+                        <motion.tr 
+                          key={report.id}
+                          variants={itemVariants}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="flex flex-col">
+                              <div className="text-sm font-medium text-gray-900">
+                                {new Date(report.created_at).toLocaleDateString()}
+                              </div>
+                              <div className="text-xs text-gray-500 flex items-center">
+                                <Calendar className="h-3 w-3 mr-1" />
+                                {formatTimeAgo(report.created_at)}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <span className="text-blue-600 font-medium">
+                                  {report.user?.name ? report.user.name.charAt(0).toUpperCase() : "U"}
+                                </span>
+                              </div>
+                              <div className="ml-3">
+                                <div className="text-sm font-medium text-gray-900">{report.user?.name}</div>
+                                <div className="text-xs text-gray-500">{report.user?.nim || report.user?.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center text-sm text-gray-600">
+                              <MapPin className="h-4 w-4 text-gray-400 mr-1.5 flex-shrink-0" />
+                              <span className="truncate max-w-[180px]">{report.location}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <Badge variant="outline" className="capitalize font-normal">
+                              {formatProblemType(report.problem_type)}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <Badge className={`flex items-center px-2 py-1 ${statusBadge.color} font-normal border capitalize`}>
+                              {statusBadge.icon}
+                              <span>{report.status.replace(/_/g, ' ')}</span>
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex justify-end items-center space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 h-8"
+                                onClick={() => handleViewReport(report)}
+                              >
+                                <ExternalLink className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem onClick={() => handleViewReport(report)} className="cursor-pointer">
+                                    <ExternalLink className="h-4 w-4 mr-2 text-blue-600" />
+                                    <span>View details</span>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem className="cursor-pointer">
+                                    <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                                    <span>Mark as resolved</span>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem className="cursor-pointer">
+                                    <Info className="h-4 w-4 mr-2 text-blue-600" />
+                                    <span>Mark as in progress</span>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem className="cursor-pointer text-red-600">
+                                    <XCircle className="h-4 w-4 mr-2 text-red-600" />
+                                    <span>Reject report</span>
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </motion.tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Report Detail Modal */}
+      <AnimatePresence>
+        {isDetailOpen && selectedReport && (
+          <motion.div 
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsDetailOpen(false)}
+          >
+            <motion.div 
+              className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto"
+              variants={detailVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
+                <h2 className="text-xl font-bold text-gray-800">Report #{selectedReport.id}</h2>
+                <Button variant="ghost" size="sm" onClick={() => setIsDetailOpen(false)}>
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+              
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-3">Report Details</h3>
+                  
+                  <div className="space-y-4">
                     <div>
-                      <CardTitle className="text-lg">Report #{report.id}</CardTitle>
-                      <CardDescription>
-                        {formatDate(report.created_at)}
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-start space-x-2">
-                      <User className="h-4 w-4 text-gray-500 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{report.user.name}</p>
-                        <p className="text-xs text-gray-500">{report.user.email}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-2">
-                      <MapPin className="h-4 w-4 text-gray-500 mt-0.5" />
-                      <p className="text-sm">{report.location}</p>
-                    </div>
-                    
-                    <div>
-                      <Badge variant="outline" className="font-normal">
-                        {formatProblemType(report.problem_type)}
+                      <p className="text-sm font-medium text-gray-500">Status</p>
+                      <Badge className={`mt-1 ${getStatusBadge(selectedReport.status).color} px-2.5 py-1 text-xs font-normal border capitalize flex items-center w-fit`}>
+                        {getStatusBadge(selectedReport.status).icon}
+                        <span>{selectedReport.status.replace(/_/g, ' ')}</span>
                       </Badge>
                     </div>
                     
-                    <p className="text-sm line-clamp-3">{report.description}</p>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Submitted on</p>
+                      <p className="text-sm text-gray-900 mt-1">{formatDate(selectedReport.created_at)}</p>
+                    </div>
                     
-                    <div className="flex justify-end pt-2">
-                      <Button variant="outline" size="sm" onClick={() => setSelectedReport(report)}>
-                        View Details
-                      </Button>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Problem Type</p>
+                      <Badge variant="outline" className="mt-1 capitalize">
+                        {formatProblemType(selectedReport.problem_type)}
+                      </Badge>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Location</p>
+                      <div className="flex items-center mt-1 text-sm text-gray-900">
+                        <MapPin className="h-4 w-4 text-gray-400 mr-1.5" />
+                        <span>{selectedReport.location}</span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Description</p>
+                      <p className="text-sm text-gray-900 mt-1 whitespace-pre-line">{selectedReport.description}</p>
+                    </div>
+                    
+                    {selectedReport.admin_notes && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Admin Notes</p>
+                        <p className="text-sm text-gray-900 mt-1 whitespace-pre-line bg-gray-50 p-2 rounded border border-gray-200">{selectedReport.admin_notes}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-3">Photo Evidence</h3>
+                  <div className="bg-gray-100 rounded-lg overflow-hidden border">
+                    {selectedReport.photo_url ? (
+                      <img
+                        src={selectedReport.photo_url}
+                        alt={`Report #${selectedReport.id}`}
+                        className="w-full object-contain max-h-[400px]"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-64 bg-gray-100 text-gray-400">
+                        <p>No image available</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold text-gray-700 mb-3">Reporter</h3>
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="text-blue-600 font-medium">
+                          {selectedReport.user?.name ? selectedReport.user.name.charAt(0).toUpperCase() : "U"}
+                        </span>
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-gray-900">{selectedReport.user?.name}</p>
+                        <p className="text-xs text-gray-500">{selectedReport.user?.email}</p>
+                        {selectedReport.user?.nim && (
+                          <p className="text-xs text-gray-500">NIM: {selectedReport.user.nim}</p>
+                        )}
+                        {selectedReport.user?.jurusan && (
+                          <p className="text-xs text-gray-500">Department: {selectedReport.user.jurusan}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Detail Modal - for future implementation */}
-      {selectedReport && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Report #{selectedReport.id}</h2>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedReport(null)}>
-                  <X className="h-4 w-4" />
-                </Button>
+                </div>
               </div>
               
-              {/* Report details will go here */}
-              <div className="mb-6">
-                <p className="text-sm text-gray-500">
-                  Submitted on {formatDate(selectedReport.created_at)}
-                </p>
-              </div>
-              
-              {/* Buttons */}
-              <div className="flex justify-end space-x-2 mt-6">
-                <Button variant="outline" onClick={() => setSelectedReport(null)}>
+              <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsDetailOpen(false)}>
                   Close
                 </Button>
+                <Button variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100">
+                  <Info className="h-4 w-4 mr-2" />
+                  Mark as In Progress
+                </Button>
+                <Button className="bg-green-600 hover:bg-green-700">
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Mark as Resolved
+                </Button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

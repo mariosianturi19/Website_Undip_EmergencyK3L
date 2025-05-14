@@ -1,0 +1,430 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { z } from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Eye, EyeOff, Loader2, Shield, User, Mail, Lock, Hash, BookOpen, AlertCircle } from "lucide-react"
+import { toast } from "sonner"
+import Link from "next/link"
+import Image from "next/image"
+
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+
+// Form schema validation with Zod
+const registerFormSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z
+      .string()
+      .email("Please enter a valid email address")
+      .refine((email) => email.endsWith("@students.undip.ac.id"), "Please use your @students.undip.ac.id email"),
+    nim: z
+      .string()
+      .min(14, "NIM must be 14 digits")
+      .max(14, "NIM must be 14 digits")
+      .regex(/^\d+$/, "NIM must contain only numbers"),
+    jurusan: z.string().min(2, "Department must be at least 2 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  })
+
+type RegisterFormValues = z.infer<typeof registerFormSchema>
+
+export default function RegisterPage() {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [shakeError, setShakeError] = useState("")
+  const [error, setError] = useState<string | null>(null)
+
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      nim: "",
+      jurusan: "",
+      password: "",
+      confirmPassword: "",
+    },
+  })
+
+  const onSubmit = async (data: RegisterFormValues) => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          nim: data.nim,
+          jurusan: data.jurusan,
+          password: data.password,
+        }),
+      });
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.message || "Registration failed")
+      }
+
+      toast.success("Account created", {
+        description: "Your account has been created successfully",
+      })
+
+      // Redirect to login page
+      router.push("/login")
+    } catch (error) {
+      console.error("Registration error:", error)
+
+      let errorMessage = "An unexpected error occurred"
+      if (error instanceof Error) {
+        errorMessage = error.message
+      }
+
+      setError(errorMessage)
+
+      // Trigger shake animation on first error field
+      const fieldErrors = form.formState.errors
+      if (Object.keys(fieldErrors).length > 0) {
+        setShakeError(Object.keys(fieldErrors)[0])
+        setTimeout(() => setShakeError(""), 500)
+      }
+
+      toast.error("Registration failed", {
+        description: errorMessage,
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="relative flex min-h-screen w-full">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/UPT-K3L-logo.jpg"
+          alt="UPT K3L Universitas Diponegoro"
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+      </div>
+
+      {/* Main container */}
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:flex-row lg:px-8">
+        {/* Branding section (left side on desktop) */}
+        <div className="mb-8 w-full max-w-md text-center lg:mb-0 lg:mr-12 lg:w-1/2 lg:text-left">
+          <div className="mb-6 flex justify-center lg:justify-start">
+              <img
+                src="https://firebasestorage.googleapis.com/v0/b/seputipy.appspot.com/o/covers%2Fundip.png?alt=media"
+                alt="UNDIP Logo"
+                className="h-32 w-29"
+              />
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">UNDIP Emergency</h1>
+          <p className="mt-4 text-xl text-gray-200">
+            Secure, fast, and reliable emergency response system for Diponegoro University students
+          </p>
+          <div className="mt-8 hidden space-y-4 text-left lg:block">
+            <div className="flex items-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-white"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <p className="ml-4 text-white">Instant emergency alerts</p>
+            </div>
+            <div className="flex items-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-white"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <p className="ml-4 text-white">24/7 volunteer support</p>
+            </div>
+            <div className="flex items-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-white"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <p className="ml-4 text-white">Location tracking for fast assistance</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Registration form */}
+        <div className="w-full max-w-md lg:w-1/2">
+          <div className="overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-300 hover:shadow-2xl">
+            <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-t-2xl">
+              <h2 className="text-2xl font-bold text-white text-center">Create Account</h2>
+              <p className="text-gray-300 text-center mt-1">Register as a student</p>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 mx-6 mt-6">
+                <div className="flex">
+                  <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              </div>
+            )}
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-5 bg-white">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Email Address</FormLabel>
+                      <div
+                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "email" ? "animate-shake" : ""} ${form.formState.errors.email ? "ring-2 ring-red-400" : ""}`}
+                      >
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                          <Mail size={18} />
+                        </span>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="your.email@students.undip.ac.id"
+                            className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Password</FormLabel>
+                      <div
+                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "password" ? "animate-shake" : ""} ${form.formState.errors.password ? "ring-2 ring-red-400" : ""}`}
+                      >
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                          <Lock size={18} />
+                        </span>
+                        <FormControl>
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="pl-10 pr-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-700 transition-colors"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</FormLabel>
+                      <div
+                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "confirmPassword" ? "animate-shake" : ""} ${form.formState.errors.confirmPassword ? "ring-2 ring-red-400" : ""}`}
+                      >
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                          <Lock size={18} />
+                        </span>
+                        <FormControl>
+                          <Input
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="pl-10 pr-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-700 transition-colors"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Full Name</FormLabel>
+                      <div
+                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "name" ? "animate-shake" : ""} ${form.formState.errors.name ? "ring-2 ring-red-400" : ""}`}
+                      >
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                          <User size={18} />
+                        </span>
+                        <FormControl>
+                          <Input
+                            placeholder="John Doe"
+                            className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="nim"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">NIM (Student ID)</FormLabel>
+                      <div
+                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "nim" ? "animate-shake" : ""} ${form.formState.errors.nim ? "ring-2 ring-red-400" : ""}`}
+                      >
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                          <Hash size={18} />
+                        </span>
+                        <FormControl>
+                          <Input
+                            placeholder="21120119120001"
+                            className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
+                            {...field}
+                            disabled={isLoading}
+                            maxLength={14}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="jurusan"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
+                        Department (Jurusan)
+                      </FormLabel>
+                      <div
+                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "jurusan" ? "animate-shake" : ""} ${form.formState.errors.jurusan ? "ring-2 ring-red-400" : ""}`}
+                      >
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                          <BookOpen size={18} />
+                        </span>
+                        <FormControl>
+                          <Input
+                            placeholder="Computer Science"
+                            className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-gray-800 to-black hover:from-black hover:to-gray-800 transition-all duration-300 transform hover:scale-105 rounded-xl py-6"
+                  size="lg"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    <>
+                      <User className="h-4 w-4 mr-2" />
+                      Register
+                    </>
+                  )}
+                </Button>
+
+                <div className="flex justify-center pt-2">
+                  <Link
+                    href="/login"
+                    className="text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium"
+                  >
+                    Already have an account? Login
+                  </Link>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

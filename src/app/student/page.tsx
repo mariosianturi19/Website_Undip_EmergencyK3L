@@ -3,11 +3,12 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { AlertOctagon, Phone } from "lucide-react";
+import { AlertOctagon, Phone, AlertTriangle, X, Check, Shield, FileCheck, ExternalLink } from "lucide-react";
 import StudentLayout from "@/components/layouts/StudentLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { getUserData } from "@/lib/auth";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 export default function PanicButtonPage() {
   const [isConfirming, setIsConfirming] = useState(false);
@@ -15,6 +16,8 @@ export default function PanicButtonPage() {
   const [countdown, setCountdown] = useState(5);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const userData = getUserData();
 
   // Get user's location when component mounts
@@ -55,6 +58,24 @@ export default function PanicButtonPage() {
       return;
     }
 
+    // Show terms and conditions modal
+    setIsTermsModalOpen(true);
+  };
+
+  const handleCancelPanic = () => {
+    setIsConfirming(false);
+    setIsSending(false);
+    setCountdown(5);
+  };
+
+  const handleCloseTermsModal = () => {
+    setIsTermsModalOpen(false);
+    setIsConfirming(false);
+    setTermsAccepted(false);
+  };
+
+  const handleAcceptTerms = () => {
+    setIsTermsModalOpen(false);
     setIsSending(true);
     setIsConfirming(false);
     setCountdown(5);
@@ -79,16 +100,65 @@ export default function PanicButtonPage() {
     }, 1000);
   };
 
-  const handleCancelPanic = () => {
-    setIsConfirming(false);
-    setIsSending(false);
-    setCountdown(5);
-  };
-
   // Get initial for profile
   const getInitial = (name: string | undefined) => {
     return name ? name.charAt(0).toUpperCase() : "U";
   };
+
+  // Terms and conditions modal
+  const TermsModal = () => (
+    <AnimatePresence>
+      {isTermsModalOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={handleCloseTermsModal}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 bg-red-600 text-white">
+              <div className="flex items-center">
+                <AlertTriangle className="h-5 w-5 mr-2" />
+                <h2 className="text-lg font-bold">Emergency Alert Terms</h2>
+              </div>
+              <button
+                onClick={handleCloseTermsModal}
+                className="p-1 rounded-full hover:bg-red-700 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="p-4 border-t border-gray-200 flex justify-end space-x-3 bg-gray-50">
+              <Button 
+                variant="outline" 
+                onClick={handleCloseTermsModal}
+                className="border-gray-300"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleAcceptTerms}
+                disabled={!termsAccepted}
+                className={`${!termsAccepted ? 'bg-red-300' : 'bg-red-600 hover:bg-red-700'}`}
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Continue
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     <StudentLayout>
@@ -248,7 +318,7 @@ export default function PanicButtonPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          className="mt-8 w-full max-w-lg mx-auto"
+          className="mt-4 w-full max-w-lg mx-auto"
         >
           <div className="border-t border-gray-200 pt-6">
             <h3 className="text-lg font-semibold text-gray-700 flex items-center justify-center mb-3">
@@ -263,10 +333,20 @@ export default function PanicButtonPage() {
               <p className="text-blue-800 font-semibold">Campus Security</p>
               <p className="text-3xl font-bold text-blue-900">112</p>
               <p className="text-sm text-blue-700 mt-1">Available 24/7</p>
+              <a 
+                href="tel:112" 
+                className="mt-3 inline-flex items-center text-blue-700 text-sm hover:text-blue-900"
+              >
+                <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                Call directly
+              </a>
             </motion.div>
           </div>
         </motion.div>
       </div>
+
+      {/* Terms and Conditions Modal */}
+      <TermsModal />
 
       {/* Custom CSS for animations */}
       <style jsx>{`

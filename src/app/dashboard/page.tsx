@@ -233,8 +233,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
-            <p className="text-gray-500 mt-1">Welcome back, review the latest statistics and activities</p>
+            <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
           </motion.div>
           
           <motion.div 

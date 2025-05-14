@@ -139,63 +139,13 @@ export default function RegisterPage() {
                 className="h-32 w-29"
               />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">UNDIP Emergency</h1>
-          <p className="mt-4 text-xl text-gray-200">
-            Secure, fast, and reliable emergency response system for Diponegoro University students
+          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">SIGAP UNDIP</h1>
+          <p className="mt-3 text-xl text-gray-200">
+            Sistem Informasi Gawat dan Pelaporan
           </p>
-          <div className="mt-8 hidden space-y-4 text-left lg:block">
-            <div className="flex items-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-white"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <p className="ml-4 text-white">Instant emergency alerts</p>
-            </div>
-            <div className="flex items-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-white"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <p className="ml-4 text-white">24/7 volunteer support</p>
-            </div>
-            <div className="flex items-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-white"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <p className="ml-4 text-white">Location tracking for fast assistance</p>
-            </div>
-          </div>
+          <p className="mt-2 text-lg italic text-gray-300">
+            Satu Sistem, Tanggap Darurat
+          </p>
         </div>
 
         {/* Registration form */}
@@ -346,7 +296,7 @@ export default function RegisterPage() {
                       <FormLabel className="block text-sm font-medium text-gray-700 mb-1">NIM (Student ID)</FormLabel>
                       <div
                         className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "nim" ? "animate-shake" : ""} ${form.formState.errors.nim ? "ring-2 ring-red-400" : ""}`}
-                      >
+                        >
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                           <Hash size={18} />
                         </span>

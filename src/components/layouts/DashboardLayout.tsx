@@ -223,7 +223,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   height={24}
                   className="object-contain"
                 />
-                <span className="font-semibold">UNDIP Emergency</span>
+                <span className="font-semibold">SIGAP UNDIP</span>
               </div>
             </div>
             <div className="flex items-center space-x-4">

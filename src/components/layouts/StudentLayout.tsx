@@ -32,7 +32,6 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
     <div>
       {/* You can add a header, sidebar, or navigation here if needed */}
       <main>{children}</main>
-      <Footer />
     </div>
   );
 }

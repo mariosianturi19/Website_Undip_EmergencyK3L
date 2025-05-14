@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, EyeOff, Loader2, Shield, User, Mail, Lock, Hash, BookOpen, AlertCircle } from "lucide-react"
+import { Eye, EyeOff, Loader2, Shield, User, Mail, Lock, Hash, BookOpen, AlertCircle, Phone } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
 import Image from "next/image"
@@ -28,6 +28,11 @@ const registerFormSchema = z
       .max(14, "NIM must be 14 digits")
       .regex(/^\d+$/, "NIM must contain only numbers"),
     jurusan: z.string().min(2, "Department must be at least 2 characters"),
+    no_telp: z
+      .string()
+      .min(11, "Phone number must be at least 11 digits")
+      .max(12, "Phone number must be at most 12 digits")
+      .regex(/^\d+$/, "Phone number must contain only numbers"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
   })
@@ -53,6 +58,7 @@ export default function RegisterPage() {
       email: "",
       nim: "",
       jurusan: "",
+      no_telp: "",
       password: "",
       confirmPassword: "",
     },
@@ -73,6 +79,7 @@ export default function RegisterPage() {
           email: data.email,
           nim: data.nim,
           jurusan: data.jurusan,
+          no_telp: data.no_telp,
           password: data.password,
         }),
       });
@@ -169,6 +176,116 @@ export default function RegisterPage() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-5 bg-white">
                 <FormField
                   control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Full Name</FormLabel>
+                      <div
+                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "name" ? "animate-shake" : ""} ${form.formState.errors.name ? "ring-2 ring-red-400" : ""}`}
+                      >
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                          <User size={18} />
+                        </span>
+                        <FormControl>
+                          <Input
+                            placeholder="John Doe"
+                            className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="nim"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">NIM (Student ID)</FormLabel>
+                      <div
+                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "nim" ? "animate-shake" : ""} ${form.formState.errors.nim ? "ring-2 ring-red-400" : ""}`}
+                      >
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                          <Hash size={18} />
+                        </span>
+                        <FormControl>
+                          <Input
+                            placeholder="21120119120001"
+                            className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
+                            {...field}
+                            disabled={isLoading}
+                            maxLength={14}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="jurusan"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
+                        Department (Jurusan)
+                      </FormLabel>
+                      <div
+                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "jurusan" ? "animate-shake" : ""} ${form.formState.errors.jurusan ? "ring-2 ring-red-400" : ""}`}
+                      >
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                          <BookOpen size={18} />
+                        </span>
+                        <FormControl>
+                          <Input
+                            placeholder="Computer Science"
+                            className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="no_telp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number
+                      </FormLabel>
+                      <div
+                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "no_telp" ? "animate-shake" : ""} ${form.formState.errors.no_telp ? "ring-2 ring-red-400" : ""}`}
+                      >
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                          <Phone size={18} />
+                        </span>
+                        <FormControl>
+                          <Input
+                            placeholder="08771234567"
+                            className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
+                            {...field}
+                            disabled={isLoading}
+                            maxLength={12}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
@@ -256,87 +373,6 @@ export default function RegisterPage() {
                         >
                           {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Full Name</FormLabel>
-                      <div
-                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "name" ? "animate-shake" : ""} ${form.formState.errors.name ? "ring-2 ring-red-400" : ""}`}
-                      >
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                          <User size={18} />
-                        </span>
-                        <FormControl>
-                          <Input
-                            placeholder="John Doe"
-                            className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
-                            {...field}
-                            disabled={isLoading}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="nim"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">NIM (Student ID)</FormLabel>
-                      <div
-                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "nim" ? "animate-shake" : ""} ${form.formState.errors.nim ? "ring-2 ring-red-400" : ""}`}
-                        >
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                          <Hash size={18} />
-                        </span>
-                        <FormControl>
-                          <Input
-                            placeholder="21120119120001"
-                            className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
-                            {...field}
-                            disabled={isLoading}
-                            maxLength={14}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="jurusan"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
-                        Department (Jurusan)
-                      </FormLabel>
-                      <div
-                        className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "jurusan" ? "animate-shake" : ""} ${form.formState.errors.jurusan ? "ring-2 ring-red-400" : ""}`}
-                      >
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                          <BookOpen size={18} />
-                        </span>
-                        <FormControl>
-                          <Input
-                            placeholder="Computer Science"
-                            className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
-                            {...field}
-                            disabled={isLoading}
-                          />
-                        </FormControl>
                       </div>
                       <FormMessage />
                     </FormItem>

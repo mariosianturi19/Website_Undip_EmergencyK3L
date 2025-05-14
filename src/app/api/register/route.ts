@@ -1,3 +1,4 @@
+// src/app/api/register/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -16,8 +17,9 @@ export async function POST(request: NextRequest) {
         name: body.name,
         email: body.email,
         password: body.password,
-        nim: body.nim,           // Add NIM field
-        jurusan: body.jurusan,   // Add Jurusan field
+        nim: body.nim,
+        jurusan: body.jurusan,
+        no_telp: body.no_telp,  // Add phone number field
       }),
     });
 

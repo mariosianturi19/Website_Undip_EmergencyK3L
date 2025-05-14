@@ -148,7 +148,7 @@ const onSubmit = async (data: LoginFormValues) => {
           <div className="overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-300 hover:shadow-2xl">
             <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-t-2xl">
               <h2 className="text-2xl font-bold text-white text-center">Welcome Back</h2>
-              <p className="text-gray-300 text-center mt-1">Login to access SIGAP</p>
+              <p className="text-gray-300 text-center mt-1">Login to access SIGAP UNDIP</p>
             </div>
 
             {error && (

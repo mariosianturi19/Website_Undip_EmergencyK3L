@@ -24,14 +24,14 @@ export interface SelectProps {
 }
 
 export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
-  ({ value, onValueChange, placeholder = "Select an option", options, disabled, className, id, error }, ref) => {
+  ({ value, onValueChange, placeholder = "Pilih opsi", options, disabled, className, id, error }, ref) => {
     const [open, setOpen] = React.useState(false)
     const selectRef = React.useRef<HTMLDivElement>(null)
 
-    // Merge refs
+    // Menggabungkan referensi
     React.useImperativeHandle(ref, () => selectRef.current as HTMLDivElement)
 
-    // Handle click outside to close dropdown
+    // Tangani klik di luar untuk menutup dropdown
     React.useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
         if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
@@ -45,7 +45,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
       }
     }, [])
 
-    // Find selected option
+    // Temukan opsi yang dipilih
     const selectedOption = options.find(option => option.value === value)
 
     return (

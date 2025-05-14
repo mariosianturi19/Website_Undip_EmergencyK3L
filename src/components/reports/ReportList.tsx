@@ -41,7 +41,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-// Define interface for report and user
+// Definisikan interface untuk laporan dan pengguna
 interface ReportUser {
   id: number;
   name: string;
@@ -65,30 +65,30 @@ interface Report {
   updated_at: string;
 }
 
-// Status options
+// Opsi status
 const statusOptions = [
-  { value: "all", label: "All Statuses" },
-  { value: "pending", label: "Pending" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "resolved", label: "Resolved" },
-  { value: "rejected", label: "Rejected" },
+  { value: "all", label: "Semua Status" },
+  { value: "pending", label: "Menunggu" },
+  { value: "in_progress", label: "Dalam Proses" },
+  { value: "resolved", label: "Diselesaikan" },
+  { value: "rejected", label: "Ditolak" },
 ];
 
-// Problem type options
+// Opsi jenis masalah
 const problemTypeOptions = [
-  { value: "all", label: "All Types" },
-  { value: "electrical", label: "Electrical Issues" },
-  { value: "tree", label: "Tree Hazard" },
-  { value: "stairs", label: "Stairway Issues" },
-  { value: "elevator", label: "Elevator Problems" },
-  { value: "door", label: "Door Issues" },
-  { value: "infrastructure", label: "Infrastructure" },
-  { value: "water_supply", label: "Water Supply" },
-  { value: "waste_management", label: "Waste Management" },
-  { value: "public_safety", label: "Public Safety" },
-  { value: "public_health", label: "Public Health" },
-  { value: "environmental", label: "Environmental" },
-  { value: "other", label: "Other" },
+  { value: "all", label: "Semua Jenis" },
+  { value: "electrical", label: "Masalah Listrik" },
+  { value: "tree", label: "Bahaya Pohon" },
+  { value: "stairs", label: "Masalah Tangga" },
+  { value: "elevator", label: "Masalah Lift" },
+  { value: "door", label: "Masalah Pintu" },
+  { value: "infrastructure", label: "Infrastruktur" },
+  { value: "water_supply", label: "Pasokan Air" },
+  { value: "waste_management", label: "Pengelolaan Sampah" },
+  { value: "public_safety", label: "Keselamatan Umum" },
+  { value: "public_health", label: "Kesehatan Umum" },
+  { value: "environmental", label: "Lingkungan" },
+  { value: "other", label: "Lainnya" },
 ];
 
 export default function ReportList() {
@@ -113,7 +113,7 @@ export default function ReportList() {
     try {
       const token = await getAccessToken();
       if (!token) {
-        toast.error("Authentication required");
+        toast.error("Autentikasi diperlukan");
         return;
       }
 
@@ -126,25 +126,25 @@ export default function ReportList() {
       });
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch reports: ${response.status}`);
+        throw new Error(`Gagal mengambil laporan: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log("Reports data:", data);
+      console.log("Data laporan:", data);
       
-      // Ensure data is an array
+      // Pastikan data adalah array
       const reportsArray = Array.isArray(data) ? data : data.data || [];
       setReports(reportsArray);
     } catch (error) {
-      console.error("Error fetching reports:", error);
-      toast.error("Failed to load reports");
+      console.error("Error mengambil laporan:", error);
+      toast.error("Gagal memuat laporan");
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
     }
   };
 
-  // Format date for better display
+  // Format tanggal untuk tampilan yang lebih baik
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
@@ -153,62 +153,76 @@ export default function ReportList() {
       hour: '2-digit',
       minute: '2-digit'
     };
-    return new Date(dateString).toLocaleDateString('en-US', options);
+    return new Date(dateString).toLocaleDateString('id-ID', options);
   };
 
-  // Format time ago
+  // Format waktu yang lalu
   const formatTimeAgo = (dateString: string) => {
     const now = new Date();
     const date = new Date(dateString);
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     
-    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    if (diffInSeconds < 60) return `${diffInSeconds} detik yang lalu`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} menit yang lalu`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} jam yang lalu`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} hari yang lalu`;
     
     return formatDate(dateString);
   };
 
-  // Format problem type for better display
+  // Format jenis masalah untuk tampilan yang lebih baik
   const formatProblemType = (type: string) => {
-    return type
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, l => l.toUpperCase());
+    const typeMap: { [key: string]: string } = {
+      "electrical": "Masalah Listrik",
+      "tree": "Bahaya Pohon",
+      "stairs": "Masalah Tangga",
+      "elevator": "Masalah Lift",
+      "door": "Masalah Pintu",
+      "infrastructure": "Infrastruktur",
+      "water_supply": "Pasokan Air",
+      "waste_management": "Pengelolaan Sampah",
+      "public_safety": "Keselamatan Umum",
+      "public_health": "Kesehatan Umum",
+      "environmental": "Lingkungan",
+      "other": "Lainnya"
+    };
+    
+    return typeMap[type] || type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
-  // Get status badge styling and icon
+  // Dapatkan gaya badge status dan ikon
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return {
-          color: "bg-yellow-100 text-yellow-800 border-yellow-300",
-          icon: <Clock className="h-3.5 w-3.5 mr-1" />
-        };
-      case 'in_progress':
-        return {
-          color: "bg-blue-100 text-blue-800 border-blue-300",
-          icon: <Info className="h-3.5 w-3.5 mr-1" />
-        };
-      case 'resolved':
-        return {
-          color: "bg-green-100 text-green-800 border-green-300",
-          icon: <CheckCircle className="h-3.5 w-3.5 mr-1" />
-        };
-      case 'rejected':
-        return {
-          color: "bg-red-100 text-red-800 border-red-300",
-          icon: <XCircle className="h-3.5 w-3.5 mr-1" />
-        };
-      default:
-        return {
-          color: "bg-gray-100 text-gray-800 border-gray-300",
-          icon: <AlertCircle className="h-3.5 w-3.5 mr-1" />
-        };
-    }
+    const statusMap: { [key: string]: {text: string, color: string, icon: React.ReactNode} } = {
+      'pending': {
+        text: "Menunggu",
+        color: "bg-yellow-100 text-yellow-800 border-yellow-300",
+        icon: <Clock className="h-3.5 w-3.5 mr-1" />
+      },
+      'in_progress': {
+        text: "Dalam Proses",
+        color: "bg-blue-100 text-blue-800 border-blue-300",
+        icon: <Info className="h-3.5 w-3.5 mr-1" />
+      },
+      'resolved': {
+        text: "Diselesaikan",
+        color: "bg-green-100 text-green-800 border-green-300",
+        icon: <CheckCircle className="h-3.5 w-3.5 mr-1" />
+      },
+      'rejected': {
+        text: "Ditolak",
+        color: "bg-red-100 text-red-800 border-red-300",
+        icon: <XCircle className="h-3.5 w-3.5 mr-1" />
+      }
+    };
+    
+    return statusMap[status] || {
+      text: status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      color: "bg-gray-100 text-gray-800 border-gray-300",
+      icon: <AlertCircle className="h-3.5 w-3.5 mr-1" />
+    };
   };
 
-  // Toggle sort direction or change sort field
+  // Beralih arah pengurutan atau mengubah bidang pengurutan
   const handleSort = (field: string) => {
     if (field === sortField) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -218,7 +232,7 @@ export default function ReportList() {
     }
   };
 
-  // Get sort icon
+  // Dapatkan ikon pengurutan
   const getSortIcon = (field: string) => {
     if (field !== sortField) return <ChevronDown className="h-4 w-4 opacity-40" />;
     return sortDirection === 'asc' ? (
@@ -228,7 +242,7 @@ export default function ReportList() {
     );
   };
 
-  // Sort reports
+  // Urutkan laporan
   const sortReports = (a: Report, b: Report) => {
     let valueA, valueB;
     
@@ -261,33 +275,33 @@ export default function ReportList() {
     }
   };
 
-  // Filter the reports based on search query and filters
+  // Filter laporan berdasarkan kueri pencarian dan filter
   const filteredReports = reports
     .filter(report => {
-      // Text search
+      // Pencarian teks
       const matchesSearch = 
         report.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         report.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
         report.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         String(report.id).includes(searchQuery);
       
-      // Status filter
+      // Filter status
       const matchesStatus = statusFilter === "all" || report.status === statusFilter;
       
-      // Type filter
+      // Filter jenis
       const matchesType = typeFilter === "all" || report.problem_type === typeFilter;
       
       return matchesSearch && matchesStatus && matchesType;
     })
     .sort(sortReports);
 
-  // View report detail
+  // Lihat detail laporan
   const handleViewReport = (report: Report) => {
     setSelectedReport(report);
     setIsDetailOpen(true);
   };
 
-  // Animation variants
+  // Variasi animasi
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -322,7 +336,8 @@ export default function ReportList() {
   };
 
   function handleRefresh(event: MouseEvent<HTMLButtonElement>): void {
-    throw new Error("Function not implemented.");
+    setIsRefreshing(true);
+    fetchReports();
   }
 
   return (
@@ -334,8 +349,8 @@ export default function ReportList() {
         className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
       >
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Reports</h1>
-          <p className="text-gray-500 mt-1">View and manage user submitted reports</p>
+          <h1 className="text-2xl font-bold text-gray-800">Laporan</h1>
+          <p className="text-gray-500 mt-1">Lihat dan kelola laporan yang dikirim oleh Mahasiswa</p>
         </div>
         <Button
           onClick={handleRefresh}
@@ -348,7 +363,7 @@ export default function ReportList() {
           ) : (
             <RefreshCw className="h-4 w-4 mr-2" />
           )}
-          Refresh
+          Segarkan
         </Button>
       </motion.div>
 
@@ -359,9 +374,9 @@ export default function ReportList() {
       >
         <Card className="border border-gray-200 shadow-sm">
           <CardHeader className="pb-3 border-b">
-            <CardTitle className="text-xl font-bold text-gray-800">Filters</CardTitle>
+            <CardTitle className="text-xl font-bold text-gray-800">Filter</CardTitle>
             <CardDescription>
-              Filter and search reports
+              Filter dan cari laporan
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4">
@@ -369,7 +384,7 @@ export default function ReportList() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <Input
-                  placeholder="Search reports..."
+                  placeholder="Cari laporan..."
                   className="pl-10 border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -401,7 +416,7 @@ export default function ReportList() {
       >
         <Card className="border border-gray-200 shadow-sm">
           <CardHeader className="pb-3 border-b">
-            <CardTitle className="text-xl font-bold text-gray-800">Report List</CardTitle>
+            <CardTitle className="text-xl font-bold text-gray-800">Daftar Laporan</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {isLoading ? (
@@ -420,8 +435,8 @@ export default function ReportList() {
                   </div>
                   {searchQuery || statusFilter !== "all" || typeFilter !== "all" ? (
                     <>
-                      <h3 className="text-lg font-medium text-gray-800 mb-1">No matching reports</h3>
-                      <p className="text-gray-500 mb-4">Try changing your search or filter criteria</p>
+                      <h3 className="text-lg font-medium text-gray-800 mb-1">Tidak ada laporan yang cocok</h3>
+                      <p className="text-gray-500 mb-4">Coba ubah kriteria pencarian atau filter Anda</p>
                       <Button 
                         variant="outline" 
                         onClick={() => {
@@ -431,20 +446,20 @@ export default function ReportList() {
                         }}
                         className="border-gray-200"
                       >
-                        Clear filters
+                        Hapus filter
                       </Button>
                     </>
                   ) : (
                     <>
-                      <h3 className="text-lg font-medium text-gray-800 mb-1">No reports found</h3>
-                      <p className="text-gray-500 mb-4">There are currently no reports in the system</p>
+                      <h3 className="text-lg font-medium text-gray-800 mb-1">Tidak ada laporan ditemukan</h3>
+                      <p className="text-gray-500 mb-4">Saat ini tidak ada laporan dalam sistem</p>
                       <Button 
                         variant="outline"
                         onClick={handleRefresh}
                         className="border-gray-200"
                       >
                         <RefreshCw className="h-4 w-4 mr-2" />
-                        Refresh
+                        Segarkan
                       </Button>
                     </>
                   )}
@@ -460,19 +475,19 @@ export default function ReportList() {
                           className="flex items-center font-medium"
                           onClick={() => handleSort('date')}
                         >
-                          Date
+                          Tanggal
                           {getSortIcon('date')}
                         </button>
                       </th>
                       <th className="px-4 py-3 text-left">
-                        <span className="font-medium">Reporter</span>
+                        <span className="font-medium">Pelapor</span>
                       </th>
                       <th className="px-4 py-3 text-left">
                         <button
                           className="flex items-center font-medium"
                           onClick={() => handleSort('location')}
                         >
-                          Location
+                          Lokasi
                           {getSortIcon('location')}
                         </button>
                       </th>
@@ -481,7 +496,7 @@ export default function ReportList() {
                           className="flex items-center font-medium"
                           onClick={() => handleSort('type')}
                         >
-                          Problem Type
+                          Jenis Masalah
                           {getSortIcon('type')}
                         </button>
                       </th>
@@ -494,7 +509,7 @@ export default function ReportList() {
                           {getSortIcon('status')}
                         </button>
                       </th>
-                      <th className="px-4 py-3 text-right">Actions</th>
+                      <th className="px-4 py-3 text-right">Tindakan</th>
                     </tr>
                   </thead>
                   <motion.tbody
@@ -504,7 +519,7 @@ export default function ReportList() {
                     className="divide-y divide-gray-100"
                   >
                     {filteredReports.map((report) => {
-                      const statusBadge = getStatusBadge(report.status);
+                      const status = getStatusBadge(report.status);
                       return (
                         <motion.tr 
                           key={report.id}
@@ -547,9 +562,9 @@ export default function ReportList() {
                             </Badge>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <Badge className={`flex items-center px-2 py-1 ${statusBadge.color} font-normal border capitalize`}>
-                              {statusBadge.icon}
-                              <span>{report.status.replace(/_/g, ' ')}</span>
+                            <Badge className={`flex items-center px-2 py-1 ${status.color} font-normal border`}>
+                              {status.icon}
+                              <span>{status.text}</span>
                             </Badge>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
@@ -561,7 +576,7 @@ export default function ReportList() {
                                 onClick={() => handleViewReport(report)}
                               >
                                 <ExternalLink className="h-4 w-4 mr-1" />
-                                View
+                                Lihat
                               </Button>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -572,20 +587,20 @@ export default function ReportList() {
                                 <DropdownMenuContent align="end" className="w-48">
                                   <DropdownMenuItem onClick={() => handleViewReport(report)} className="cursor-pointer">
                                     <ExternalLink className="h-4 w-4 mr-2 text-blue-600" />
-                                    <span>View details</span>
+                                    <span>Lihat detail</span>
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem className="cursor-pointer">
                                     <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
-                                    <span>Mark as resolved</span>
+                                    <span>Tandai sebagai diselesaikan</span>
                                   </DropdownMenuItem>
                                   <DropdownMenuItem className="cursor-pointer">
                                     <Info className="h-4 w-4 mr-2 text-blue-600" />
-                                    <span>Mark as in progress</span>
+                                    <span>Tandai dalam proses</span>
                                   </DropdownMenuItem>
                                   <DropdownMenuItem className="cursor-pointer text-red-600">
                                     <XCircle className="h-4 w-4 mr-2 text-red-600" />
-                                    <span>Reject report</span>
+                                    <span>Tolak laporan</span>
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -602,7 +617,7 @@ export default function ReportList() {
         </Card>
       </motion.div>
 
-      {/* Report Detail Modal */}
+      {/* Modal Detail Laporan */}
       <AnimatePresence>
         {isDetailOpen && selectedReport && (
           <motion.div 
@@ -621,7 +636,7 @@ export default function ReportList() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
-                <h2 className="text-xl font-bold text-gray-800">Report #{selectedReport.id}</h2>
+                <h2 className="text-xl font-bold text-gray-800">Laporan #{selectedReport.id}</h2>
                 <Button variant="ghost" size="sm" onClick={() => setIsDetailOpen(false)}>
                   <X className="h-5 w-5" />
                 </Button>
@@ -629,31 +644,31 @@ export default function ReportList() {
               
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-3">Report Details</h3>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-3">Detail Laporan</h3>
                   
                   <div className="space-y-4">
                     <div>
                       <p className="text-sm font-medium text-gray-500">Status</p>
-                      <Badge className={`mt-1 ${getStatusBadge(selectedReport.status).color} px-2.5 py-1 text-xs font-normal border capitalize flex items-center w-fit`}>
+                      <Badge className={`mt-1 ${getStatusBadge(selectedReport.status).color} px-2.5 py-1 text-xs font-normal border flex items-center w-fit`}>
                         {getStatusBadge(selectedReport.status).icon}
-                        <span>{selectedReport.status.replace(/_/g, ' ')}</span>
+                        <span>{getStatusBadge(selectedReport.status).text}</span>
                       </Badge>
                     </div>
                     
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Submitted on</p>
+                      <p className="text-sm font-medium text-gray-500">Dikirim pada</p>
                       <p className="text-sm text-gray-900 mt-1">{formatDate(selectedReport.created_at)}</p>
                     </div>
                     
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Problem Type</p>
+                      <p className="text-sm font-medium text-gray-500">Jenis Masalah</p>
                       <Badge variant="outline" className="mt-1 capitalize">
                         {formatProblemType(selectedReport.problem_type)}
                       </Badge>
                     </div>
                     
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Location</p>
+                      <p className="text-sm font-medium text-gray-500">Lokasi</p>
                       <div className="flex items-center mt-1 text-sm text-gray-900">
                         <MapPin className="h-4 w-4 text-gray-400 mr-1.5" />
                         <span>{selectedReport.location}</span>
@@ -661,13 +676,13 @@ export default function ReportList() {
                     </div>
                     
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Description</p>
+                      <p className="text-sm font-medium text-gray-500">Deskripsi</p>
                       <p className="text-sm text-gray-900 mt-1 whitespace-pre-line">{selectedReport.description}</p>
                     </div>
                     
                     {selectedReport.admin_notes && (
                       <div>
-                        <p className="text-sm font-medium text-gray-500">Admin Notes</p>
+                        <p className="text-sm font-medium text-gray-500">Catatan Admin</p>
                         <p className="text-sm text-gray-900 mt-1 whitespace-pre-line bg-gray-50 p-2 rounded border border-gray-200">{selectedReport.admin_notes}</p>
                       </div>
                     )}
@@ -675,23 +690,23 @@ export default function ReportList() {
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-3">Photo Evidence</h3>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-3">Bukti Foto</h3>
                   <div className="bg-gray-100 rounded-lg overflow-hidden border">
                     {selectedReport.photo_url ? (
                       <img
                         src={selectedReport.photo_url}
-                        alt={`Report #${selectedReport.id}`}
+                        alt={`Laporan #${selectedReport.id}`}
                         className="w-full object-contain max-h-[400px]"
                       />
                     ) : (
                       <div className="flex items-center justify-center h-64 bg-gray-100 text-gray-400">
-                        <p>No image available</p>
+                        <p>Tidak ada gambar tersedia</p>
                       </div>
                     )}
                   </div>
                   
                   <div className="mt-6">
-                    <h3 className="text-lg font-semibold text-gray-700 mb-3">Reporter</h3>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-3">Pelapor</h3>
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
                         <span className="text-blue-600 font-medium">
@@ -705,7 +720,7 @@ export default function ReportList() {
                           <p className="text-xs text-gray-500">NIM: {selectedReport.user.nim}</p>
                         )}
                         {selectedReport.user?.jurusan && (
-                          <p className="text-xs text-gray-500">Department: {selectedReport.user.jurusan}</p>
+                          <p className="text-xs text-gray-500">Jurusan: {selectedReport.user.jurusan}</p>
                         )}
                       </div>
                     </div>
@@ -715,15 +730,15 @@ export default function ReportList() {
               
               <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setIsDetailOpen(false)}>
-                  Close
+                  Tutup
                 </Button>
                 <Button variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100">
                   <Info className="h-4 w-4 mr-2" />
-                  Mark as In Progress
+                  Tandai Dalam Proses
                 </Button>
                 <Button className="bg-green-600 hover:bg-green-700">
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  Mark as Resolved
+                  Tandai Selesai
                 </Button>
               </div>
             </motion.div>

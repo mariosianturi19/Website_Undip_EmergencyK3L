@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getUserRole, getAccessToken } from "@/lib/auth";
+import { getUserRole, getAccessToken, getUserData } from "@/lib/auth";
 import { Loader2, Users, Bell, Image, AlertTriangle, TrendingUp, ArrowUp, ArrowDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
-// Define interface for activities
+// Definisi interface untuk aktivitas
 interface Activity {
   id: string;
   type: 'volunteer' | 'report' | 'alert';
@@ -33,23 +33,32 @@ export default function Dashboard() {
   const [isClient, setIsClient] = useState(false);
   const [volunteerCount, setVolunteerCount] = useState<number>(0);
   const [reportCount, setReportCount] = useState<number>(0);
-  const [alertCount, setAlertCount] = useState<number>(3); // Dummy data for alerts
+  const [alertCount, setAlertCount] = useState<number>(3); // Data dummy untuk peringatan
   const [activities, setActivities] = useState<Activity[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
-    // Get the user role
+    // Dapatkan peran pengguna
     const userRole = getUserRole();
+    const userData = getUserData();
     setRole(userRole);
     
-    // If user is a regular user, redirect to the student page
+    // Jika pengguna adalah pengguna biasa, arahkan ke halaman mahasiswa
     if (userRole === "user") {
       router.push("/student");
       return;
     }
     
-    // Fetch counts and activities
+    // Tampilkan toast selamat datang jika belum ditampilkan
+    if (userData && !sessionStorage.getItem("welcome_toast_shown")) {
+      toast.success(`Selamat datang, ${userData.name}!`, {
+        description: "Selamat bekerja di dasbor admin"
+      });
+      sessionStorage.setItem("welcome_toast_shown", "true");
+    }
+    
+    // Ambil hitungan dan aktivitas
     fetchCounts();
   }, [router]);
 
@@ -57,11 +66,11 @@ export default function Dashboard() {
     try {
       const token = await getAccessToken();
       if (!token) {
-        throw new Error("Authentication required");
+        throw new Error("Autentikasi diperlukan");
         return;
       }
 
-      // Fetch volunteer count
+      // Ambil jumlah relawan
       const volunteerResponse = await fetch("/api/volunteers", {
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -71,21 +80,21 @@ export default function Dashboard() {
       
       if (volunteerResponse.ok) {
         const volunteerData = await volunteerResponse.json();
-        // Determine count based on API response structure
-        const volunteers = Array.isArray(volunteerData) ? volunteerData : [];
+        // Tentukan jumlah berdasarkan struktur respons API
+        const volunteers = Array.isArray(volunteerData) ? volunteerData : volunteerData.data || [];
         setVolunteerCount(volunteers.length);
         
-        // Add volunteer activities from the data
+        // Tambahkan aktivitas relawan dari data
         const volunteerActivities: Activity[] = volunteers.slice(0, 2).map((vol: any) => ({
           id: `vol-${vol.id}`,
           type: 'volunteer',
-          title: "New volunteer registered",
-          description: `${vol.name} joined as a volunteer`,
+          title: "Relawan baru terdaftar",
+          description: `${vol.name} bergabung sebagai relawan`,
           timestamp: new Date(vol.created_at),
           icon: 'Users'
         }));
 
-        // Fetch reports count
+        // Ambil jumlah laporan
         const reportResponse = await fetch("/api/reports", {
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -97,48 +106,48 @@ export default function Dashboard() {
           const reportData = await reportResponse.json();
           let reports = [];
           
-          // If the response is an object with a 'data' array (paginated response)
+          // Jika respons adalah objek dengan array 'data' (respons terpaginasi)
           if (reportData && reportData.data && Array.isArray(reportData.data)) {
             reports = reportData.data;
             setReportCount(reportData.total || reportData.data.length);
           } 
-          // If the response is a direct array
+          // Jika respons adalah array langsung
           else if (Array.isArray(reportData)) {
             reports = reportData;
             setReportCount(reportData.length);
           }
           
-          // Add report activities
+          // Tambahkan aktivitas laporan
           const reportActivities: Activity[] = reports.slice(0, 2).map((report: any) => ({
             id: `report-${report.id}`,
             type: 'report',
-            title: "Report submitted with photo",
-            description: `At ${report.location}, ${report.problem_type} issue reported`,
+            title: "Laporan dikirim dengan foto",
+            description: `Di ${report.location}, masalah ${report.problem_type} dilaporkan`,
             timestamp: new Date(report.created_at),
             icon: 'Image'
           }));
           
-          // Create dummy emergency alert activities
+          // Buat aktivitas peringatan darurat dummy
           const alertActivities: Activity[] = [
             {
               id: 'alert-1',
               type: 'alert',
-              title: "Emergency alert triggered",
-              description: "At Faculty of Engineering, prompt response by team",
-              timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
+              title: "Peringatan darurat dipicu",
+              description: "Di Fakultas Teknik, respons cepat oleh tim",
+              timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 jam yang lalu
               icon: 'AlertTriangle'
             },
             {
               id: 'alert-2',
               type: 'alert',
-              title: "Emergency situation resolved",
-              description: "Medical team responded in Science Building",
-              timestamp: new Date(Date.now() - 9 * 60 * 60 * 1000), // 9 hours ago
+              title: "Situasi darurat teratasi",
+              description: "Tim medis merespons di Gedung Sains",
+              timestamp: new Date(Date.now() - 9 * 60 * 60 * 1000), // 9 jam yang lalu
               icon: 'AlertTriangle'
             }
           ];
           
-          // Combine all activities and sort by timestamp (newest first)
+          // Gabungkan semua aktivitas dan urutkan berdasarkan waktu (terbaru lebih dulu)
           const allActivities = [...volunteerActivities, ...reportActivities, ...alertActivities]
             .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
           
@@ -148,24 +157,24 @@ export default function Dashboard() {
 
       setIsLoading(false);
     } catch (error) {
-      console.error("Error fetching counts:", error);
-      toast.error("Failed to load dashboard data");
+      console.error("Error mengambil data:", error);
+      toast.error("Gagal memuat data dasbor");
       setIsLoading(false);
     }
   };
 
-  // Helper function to format date for display
+  // Fungsi pembantu untuk memformat tanggal untuk tampilan
   const formatTimeAgo = (date: Date) => {
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     
-    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    if (diffInSeconds < 60) return `${diffInSeconds} detik yang lalu`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} menit yang lalu`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} jam yang lalu`;
+    return `${Math.floor(diffInSeconds / 86400)} hari yang lalu`;
   };
 
-  // Get icon component based on activity type
+  // Dapatkan komponen ikon berdasarkan jenis aktivitas
   const getActivityIcon = (type: string) => {
     switch(type) {
       case 'volunteer':
@@ -179,7 +188,7 @@ export default function Dashboard() {
     }
   };
 
-  // Get background color class for activity icon
+  // Dapatkan kelas warna latar belakang untuk ikon aktivitas
   const getIconBgColor = (type: string) => {
     switch(type) {
       case 'volunteer':
@@ -207,7 +216,7 @@ export default function Dashboard() {
   };
 
   if (!isClient) {
-    return null; // Return nothing during server-side rendering
+    return null; // Jangan mengembalikan apa pun selama rendering sisi server
   }
 
   if (isLoading) {
@@ -218,7 +227,7 @@ export default function Dashboard() {
     );
   }
 
-  // Dashboard overview content
+  // Konten ikhtisar dasbor
   return (
     <DashboardLayout>
       <motion.div 
@@ -233,7 +242,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Dasbor Admin</h1>
           </motion.div>
           
           <motion.div 
@@ -257,7 +266,7 @@ export default function Dashboard() {
               <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-100">
                 <CardTitle className="text-blue-900 flex items-center text-lg">
                   <Users className="h-5 w-5 mr-2 text-blue-600" />
-                  Total Volunteers
+                  Total Relawan
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
@@ -266,7 +275,7 @@ export default function Dashboard() {
                     <span className="text-3xl font-bold text-gray-800">{volunteerCount}</span>
                     <span className="text-sm text-green-600 flex items-center mt-1">
                       <TrendingUp className="h-3 w-3 mr-1" />
-                      Active volunteers
+                      Relawan aktif
                     </span>
                   </div>
                   <div className="h-12 w-12 bg-blue-50 rounded-full flex items-center justify-center">
@@ -288,7 +297,7 @@ export default function Dashboard() {
               <CardHeader className="pb-2 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-100">
                 <CardTitle className="text-green-900 flex items-center text-lg">
                   <Image className="h-5 w-5 mr-2 text-green-600" />
-                  Photo Reports
+                  Laporan Foto
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
@@ -297,7 +306,7 @@ export default function Dashboard() {
                     <span className="text-3xl font-bold text-gray-800">{reportCount}</span>
                     <span className="text-sm text-green-600 flex items-center mt-1">
                       <TrendingUp className="h-3 w-3 mr-1" />
-                      Total submitted
+                      Total terkirim
                     </span>
                   </div>
                   <div className="h-12 w-12 bg-green-50 rounded-full flex items-center justify-center">
@@ -319,7 +328,7 @@ export default function Dashboard() {
               <CardHeader className="pb-2 bg-gradient-to-r from-red-50 to-red-100 border-b border-red-100">
                 <CardTitle className="text-red-900 flex items-center text-lg">
                   <AlertTriangle className="h-5 w-5 mr-2 text-red-600" />
-                  Emergency Alerts
+                  Peringatan Darurat
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
@@ -328,7 +337,7 @@ export default function Dashboard() {
                     <span className="text-3xl font-bold text-gray-800">{alertCount}</span>
                     <span className="text-sm text-red-600 flex items-center mt-1">
                       <ArrowDown className="h-3 w-3 mr-1" />
-                      Last 24 hours
+                      24 jam terakhir
                     </span>
                   </div>
                   <div className="h-12 w-12 bg-red-50 rounded-full flex items-center justify-center">
@@ -349,9 +358,9 @@ export default function Dashboard() {
           >
             <Card className="border border-gray-200 shadow-sm h-full">
               <CardHeader className="pb-2 border-b">
-                <CardTitle className="text-xl font-bold text-gray-800">Recent Activities</CardTitle>
+                <CardTitle className="text-xl font-bold text-gray-800">Aktivitas Terbaru</CardTitle>
                 <CardDescription>
-                  Overview of the latest system activities
+                  Ikhtisar aktivitas sistem terbaru
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
@@ -380,7 +389,7 @@ export default function Dashboard() {
                       </motion.div>
                     ))
                   ) : (
-                    <div className="p-4 text-center text-gray-500">No recent activities</div>
+                    <div className="p-4 text-center text-gray-500">Tidak ada aktivitas terbaru</div>
                   )}
                 </div>
               </CardContent>

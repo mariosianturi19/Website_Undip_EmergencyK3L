@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { isAuthenticated, getUserRole } from "@/lib/auth";
+import { isAuthenticated, getUserRole, getUserData } from "@/lib/auth";
 import { toast } from "@/components/ui/sonner";
 import { Loader2 } from 'lucide-react';
 
@@ -11,59 +11,61 @@ export default function Home() {
   const [isRedirecting, setIsRedirecting] = useState(true);
 
   useEffect(() => {
-    // Show loading toast
-    const loadingToast = toast.loading("Checking authentication...");
+    // Tampilkan toast loading
+    const loadingToast = toast.loading("Memeriksa autentikasi...");
     
-    // Small delay to allow the toast to show
+    // Tunda kecil untuk memungkinkan toast ditampilkan
     setTimeout(() => {
       try {
-        // Redirect based on authentication status
+        // Redirect berdasarkan status autentikasi
         if (isAuthenticated()) {
           const role = getUserRole();
+          const userData = getUserData();
+          const userName = userData?.name || "Pengguna";
           
-          // If user is student/regular user, redirect directly to student panic button page
+          // Jika pengguna adalah mahasiswa/pengguna biasa, alihkan langsung ke halaman tombol panik mahasiswa
           if (role === "user") {
-            toast.success("Welcome back!", {
-              description: "Redirecting to emergency page",
+            toast.success(`Selamat datang kembali, ${userName}!`, {
+              description: "Mengalihkan ke halaman darurat",
               id: loadingToast,
             });
             router.push("/student");
           } else {
-            // Admin and volunteers go to dashboard
-            toast.success("Welcome back, admin!", {
-              description: "Redirecting to dashboard",
+            // Admin dan relawan masuk ke dasbor
+            toast.success(`Selamat datang kembali, ${userName}!`, {
+              description: "Mengalihkan ke dasbor",
               id: loadingToast,
             });
             router.push("/dashboard");
           }
         } else {
-          toast.info("Please log in", {
-            description: "Redirecting to login page",
+          toast.info("Silakan masuk", {
+            description: "Mengalihkan ke halaman masuk",
             id: loadingToast,
           });
           router.push("/login");
         }
       } catch (error) {
-        // If there's an error during authentication check
-        toast.error("Authentication error", {
-          description: "Please try again or contact support",
+        // Jika terjadi kesalahan selama pemeriksaan autentikasi
+        toast.error("Kesalahan autentikasi", {
+          description: "Silakan coba lagi atau hubungi dukungan",
           id: loadingToast,
         });
         setIsRedirecting(false);
       }
-    }, 800); // Small delay for better UX
+    }, 800); // Tunda kecil untuk UX yang lebih baik
   }, [router]);
 
-  // Return a loading state while redirecting
+  // Kembalikan status loading saat pengalihan
   return (
     <div className="flex h-screen flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="text-center">
         <div className="mb-4 flex justify-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
         </div>
-        <h1 className="mb-2 text-2xl font-bold text-gray-800 dark:text-gray-100">UNDIP Emergency</h1>
+        <h1 className="mb-2 text-2xl font-bold text-gray-800 dark:text-gray-100">SIGAP UNDIP</h1>
         <p className="text-gray-600 dark:text-gray-400">
-          {isRedirecting ? "Redirecting to the appropriate page..." : "Please refresh the page or try again later."}
+          {isRedirecting ? "Mengarahkan ke halaman yang sesuai..." : "Silakan segarkan halaman atau coba lagi nanti."}
         </p>
       </div>
     </div>

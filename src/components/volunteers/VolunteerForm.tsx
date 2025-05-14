@@ -1,20 +1,20 @@
 // src/components/volunteers/VolunteerForm.tsx
 "use client";
 
-import { useState } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Loader2, Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { getAccessToken } from "@/lib/auth";
+import { useState } from "react"
+import { z } from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { X, Loader2, Eye, EyeOff } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { getAccessToken } from "@/lib/auth"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -22,10 +22,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
 
-// Update the interface to match the actual API response
+// Perbarui interface agar sesuai dengan respons API sebenarnya
 interface Volunteer {
   id: number;
   name: string;
@@ -46,26 +46,26 @@ interface VolunteerFormProps {
   onSave: () => void;
 }
 
-// Update the form schema to include password
+// Perbarui skema formulir untuk menyertakan kata sandi
 const volunteerFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  nik: z.string().min(16, "NIK must be at least 16 digits").max(16, "NIK must be 16 digits"),
-  no_telp: z.string().min(10, "Phone number must be at least 10 digits"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  // Only require password confirmation for new volunteers
-  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+  name: z.string().min(2, "Nama harus minimal 2 karakter"),
+  email: z.string().email("Silakan masukkan alamat email yang valid"),
+  nik: z.string().min(16, "NIK harus minimal 16 digit").max(16, "NIK harus 16 digit"),
+  no_telp: z.string().min(10, "Nomor telepon harus minimal 10 digit"),
+  password: z.string().min(6, "Kata sandi harus minimal 6 karakter"),
+  // Hanya memerlukan konfirmasi kata sandi untuk relawan baru
+  confirmPassword: z.string().min(6, "Kata sandi harus minimal 6 karakter"),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
+  message: "Kata sandi tidak cocok",
   path: ["confirmPassword"],
 });
 
-// Create a separate schema for edit mode without password requirements
+// Buat skema terpisah untuk mode edit tanpa persyaratan kata sandi
 const editVolunteerFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  nik: z.string().min(16, "NIK must be at least 16 digits").max(16, "NIK must be 16 digits"),
-  no_telp: z.string().min(10, "Phone number must be at least 10 digits"),
+  name: z.string().min(2, "Nama harus minimal 2 karakter"),
+  email: z.string().email("Silakan masukkan alamat email yang valid"),
+  nik: z.string().min(16, "NIK harus minimal 16 digit").max(16, "NIK harus 16 digit"),
+  no_telp: z.string().min(10, "Nomor telepon harus minimal 10 digit"),
 });
 
 type VolunteerFormValues = z.infer<typeof volunteerFormSchema>;
@@ -83,7 +83,7 @@ export default function VolunteerForm({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Use different resolver based on mode
+  // Gunakan resolver yang berbeda berdasarkan mode
   const formSchema = mode === "create" ? volunteerFormSchema : editVolunteerFormSchema;
 
   const form = useForm<any>({
@@ -103,20 +103,20 @@ export default function VolunteerForm({
     setError(null);
     
     try {
-      // Get access token
+      // Dapatkan token akses
       const token = await getAccessToken();
       
       if (!token) {
-        throw new Error("Authentication required");
+        throw new Error("Autentikasi diperlukan");
       }
 
-      // Add the role field for new volunteers
+      // Tambahkan bidang peran untuk relawan baru
       const formData = {
         ...data,
-        role: "relawan" // Always set this role
+        role: "relawan" // Selalu tetapkan peran ini
       };
 
-      // Remove confirmPassword as the API doesn't need it
+      // Hapus confirmPassword karena API tidak memerlukannya
       if (formData.confirmPassword) {
         delete formData.confirmPassword;
       }
@@ -133,7 +133,7 @@ export default function VolunteerForm({
           body: JSON.stringify(formData),
         });
       } else {
-        // For edit mode, we might not want to send the password if it's empty
+        // Untuk mode edit, kita mungkin tidak ingin mengirim kata sandi jika kosong
         if (!formData.password) {
           delete formData.password;
         }
@@ -150,13 +150,13 @@ export default function VolunteerForm({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to save volunteer");
+        throw new Error(errorData.message || "Gagal menyimpan relawan");
       }
 
       onSave();
     } catch (error) {
-      console.error("Error saving volunteer:", error);
-      setError(error instanceof Error ? error.message : "An unexpected error occurred");
+      console.error("Error menyimpan relawan:", error);
+      setError(error instanceof Error ? error.message : "Terjadi kesalahan yang tidak terduga");
     } finally {
       setIsSubmitting(false);
     }
@@ -167,7 +167,7 @@ export default function VolunteerForm({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {mode === "create" ? "Add New Volunteer" : "Edit Volunteer"}
+            {mode === "create" ? "Tambah Relawan Baru" : "Edit Relawan"}
           </DialogTitle>
           <Button
             variant="ghost"
@@ -180,21 +180,21 @@ export default function VolunteerForm({
         </DialogHeader>
 
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 mx-6 mt-6">
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 bg-white">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Nama</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="Nama Lengkap" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -206,11 +206,11 @@ export default function VolunteerForm({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
-                      placeholder="john.doe@example.com"
+                      placeholder="email@contoh.com"
                       {...field}
                     />
                   </FormControl>
@@ -224,7 +224,7 @@ export default function VolunteerForm({
               name="nik"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>NIK (National Identity Number)</FormLabel>
+                  <FormLabel className="block text-sm font-medium text-gray-700 mb-1">NIK (Nomor Induk Kependudukan)</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="1234567890123456" 
@@ -242,7 +242,7 @@ export default function VolunteerForm({
               name="no_telp"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
+                  <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</FormLabel>
                   <FormControl>
                     <Input placeholder="08123456789" {...field} />
                   </FormControl>
@@ -258,7 +258,7 @@ export default function VolunteerForm({
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Kata Sandi</FormLabel>
                       <div className="relative">
                         <FormControl>
                           <Input 
@@ -285,7 +285,7 @@ export default function VolunteerForm({
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Kata Sandi</FormLabel>
                       <div className="relative">
                         <FormControl>
                           <Input 
@@ -311,16 +311,16 @@ export default function VolunteerForm({
 
             <DialogFooter className="mt-6">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                Batal
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
+                    Menyimpan...
                   </>
                 ) : (
-                  <>Save</>
+                  <>Simpan</>
                 )}
               </Button>
             </DialogFooter>

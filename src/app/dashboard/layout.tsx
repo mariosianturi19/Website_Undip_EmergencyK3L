@@ -23,7 +23,7 @@ export default function DashboardLayout({
       try {
         const role = getUserRole();
         
-        // If user is a regular user, redirect to student page
+        // Jika pengguna adalah pengguna biasa, arahkan ke halaman mahasiswa
         if (role === "user") {
           router.push("/student");
           return;
@@ -31,7 +31,7 @@ export default function DashboardLayout({
         
         setIsLoading(false);
       } catch (error) {
-        console.error("Auth check error:", error);
+        console.error("Kesalahan pemeriksaan otentikasi:", error);
         router.push("/login");
       }
     };

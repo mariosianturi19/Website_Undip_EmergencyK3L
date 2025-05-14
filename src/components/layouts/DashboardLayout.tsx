@@ -44,24 +44,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Get user data from localStorage
+    // Ambil data pengguna dari localStorage
     const storedUserData = localStorage.getItem("user_data");
     if (storedUserData) {
       try {
         setUserData(JSON.parse(storedUserData));
       } catch (e) {
-        console.error("Error parsing user data:", e);
+        console.error("Error mengurai data pengguna:", e);
       }
     }
   }, []);
 
   const handleLogout = () => {
     clearAuthTokens();
-    toast.success("Logged out successfully");
+    toast.success("Berhasil keluar dari sistem");
     router.push("/login");
   };
 
-  // Animation variants
+  // Variasi animasi
   const sidebarVariants = {
     expanded: {
       width: "16rem",
@@ -103,15 +103,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   // Menu items
   const menuItems = [
-    { icon: PieChart, label: "Overview", path: "/dashboard" },
-    { icon: Users, label: "Volunteers", path: "/dashboard/volunteers" },
-    { icon: FileText, label: "Reports", path: "/dashboard/reports" }
+    { icon: PieChart, label: "Dashboard", path: "/dashboard" },
+    { icon: Users, label: "Relawan", path: "/dashboard/volunteers" },
+    { icon: FileText, label: "Laporan", path: "/dashboard/reports" }
   ];
 
   return (
     <div className="flex min-h-screen bg-gray-50 flex-col">
       <div className="flex flex-1 overflow-hidden">
-        {/* Animated Sidebar */}
+        {/* Sidebar dengan Animasi */}
         <motion.div 
           ref={sidebarRef}
           className="bg-white border-r border-gray-200 h-screen overflow-hidden relative"
@@ -122,13 +122,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           onHoverEnd={() => setIsSidebarExpanded(false)}
         >
           <div className="flex flex-col h-full">
-            {/* Logo Section */}
+            {/* Bagian Logo */}
             <div className="h-16 flex items-center px-4 border-b border-gray-200">
               <div className="flex items-center justify-center w-full">
                 <div className="rounded-full bg-blue-50 w-10 h-10 flex items-center justify-center overflow-hidden">
                   <Image 
                     src="/images/Undip-Logo.png" 
-                    alt="UNDIP Logo"
+                    alt="Logo UNDIP"
                     width={40} 
                     height={40}
                     className="object-cover"
@@ -138,7 +138,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   variants={textVariants}
                   className="ml-1 font-semibold text-lg text-gray-1000"
                 >
-                  UNDIP Admin
+                  SIGAP UNDIP
                 </motion.span>
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               })}
             </div>
 
-            {/* Logout Button */}
+            {/* Tombol Keluar */}
             <div className="p-3 mb-4">
               <motion.div
                 whileHover={{ scale: 1.02 }}
@@ -202,7 +202,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     variants={textVariants}
                     className="ml-3 font-medium"
                   >
-                    Logout
+                    Log Out
                   </motion.span>
                 </button>
               </motion.div>
@@ -210,24 +210,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </motion.div>
 
-        {/* Main content */}
+        {/* Konten utama */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Top header */}
+          {/* Header atas */}
           <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
             <div className="flex items-center">
-              <div className="flex items-center space-x-3 mr-6">
-                <Image 
-                  src="/images/Undip-Logo.png" 
-                  alt="UNDIP Logo"
-                  width={24} 
-                  height={24}
-                  className="object-contain"
-                />
-                <span className="font-semibold">SIGAP UNDIP</span>
-              </div>
             </div>
             <div className="flex items-center space-x-4">
-
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -241,7 +230,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" sideOffset={5}>
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {userData && (
                     <>
@@ -254,18 +243,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   )}
                   <DropdownMenuItem className="cursor-pointer text-red-600" onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>Log Out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </header>
 
-          {/* Content */}
+          {/* Konten */}
           <main className="flex-1 overflow-auto p-6">
             {children}
           </main>
-        </div>/
+        </div>
       </div>
       
       {/* Footer */}

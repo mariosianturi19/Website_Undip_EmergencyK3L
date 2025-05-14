@@ -25,16 +25,16 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
         return;
       }
       
-      // Check if user is in the correct route based on role
+      // Periksa apakah pengguna berada di rute yang benar berdasarkan peran
       const role = getUserRole();
       
-      // If user tries to access dashboard but is a regular user
+      // Jika pengguna mencoba mengakses dasbor tetapi adalah pengguna biasa
       if (pathname.startsWith("/dashboard") && role === "user") {
         router.push("/student");
         return;
       }
       
-      // If user tries to access student pages but is admin/volunteer
+      // Jika pengguna mencoba mengakses halaman mahasiswa tetapi adalah admin/relawan
       if (pathname.startsWith("/student") && (role === "admin" || role === "volunteer")) {
         router.push("/dashboard");
         return;

@@ -1,4 +1,4 @@
-// src/app/student/page.tsx (Panic Button)
+// src/app/student/page.tsx (Tombol Darurat)
 "use client";
 
 import { useState, useEffect } from "react";
@@ -20,7 +20,7 @@ export default function PanicButtonPage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const userData = getUserData();
 
-  // Get user's location when component mounts
+  // Dapatkan lokasi pengguna saat komponen dipasang
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -32,33 +32,33 @@ export default function PanicButtonPage() {
           setLocationError(null);
         },
         (error) => {
-          console.error('Error getting location:', error);
-          setLocationError('Unable to access your location. Please enable location services.');
+          console.error('Kesalahan mendapatkan lokasi:', error);
+          setLocationError('Tidak dapat mengakses lokasi Anda. Mohon aktifkan layanan lokasi.');
         }
       );
     } else {
-      setLocationError('Geolocation is not supported by your browser.');
+      setLocationError('Geolokasi tidak didukung oleh browser Anda.');
     }
   }, []);
 
   const handlePanicButtonPress = () => {
     if (!location) {
-      toast.error("Location access is required", {
-        description: "Please enable location services and try again."
+      toast.error("Akses lokasi diperlukan", {
+        description: "Mohon aktifkan layanan lokasi dan coba lagi."
       });
       return;
     }
 
     if (!isConfirming) {
       setIsConfirming(true);
-      // Auto-reset confirmation state after 3 seconds if not clicked
+      // Atur ulang status konfirmasi setelah 3 detik jika tidak diklik
       setTimeout(() => {
         if (isConfirming) setIsConfirming(false);
       }, 3000);
       return;
     }
 
-    // Show terms and conditions modal
+    // Tampilkan modal syarat dan ketentuan
     setIsTermsModalOpen(true);
   };
 
@@ -80,16 +80,24 @@ export default function PanicButtonPage() {
     setIsConfirming(false);
     setCountdown(5);
 
-    // Start countdown
+  const userData = getUserData();
+  if (userData && !sessionStorage.getItem("welcome_toast_shown")) {
+    toast.success(`Selamat datang, ${userData.name}!`, {
+      description: "Anda telah berhasil masuk ke SIGAP UNDIP",
+    });
+    sessionStorage.setItem("welcome_toast_shown", "true");
+  }
+
+    // Mulai hitung mundur
     const countdownInterval = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(countdownInterval);
-          // Simulate API call for sending emergency alert
+          // Simulasi panggilan API untuk mengirim peringatan darurat
           setTimeout(() => {
             setIsSending(false);
-            toast.success("Emergency alert sent", {
-              description: "Emergency services have been notified of your location.",
+            toast.success("Peringatan darurat terkirim", {
+              description: "Layanan darurat telah diberitahu tentang lokasi Anda.",
               duration: 5000,
             });
           }, 1500);
@@ -100,12 +108,12 @@ export default function PanicButtonPage() {
     }, 1000);
   };
 
-  // Get initial for profile
+  // Dapatkan inisial untuk profil
   const getInitial = (name: string | undefined) => {
     return name ? name.charAt(0).toUpperCase() : "U";
   };
 
-  // Terms and conditions modal
+  // Modal syarat dan ketentuan
   const TermsModal = () => (
     <AnimatePresence>
       {isTermsModalOpen && (
@@ -127,7 +135,7 @@ export default function PanicButtonPage() {
             <div className="flex items-center justify-between p-4 bg-red-600 text-white">
               <div className="flex items-center">
                 <AlertTriangle className="h-5 w-5 mr-2" />
-                <h2 className="text-lg font-bold">Emergency Alert Terms</h2>
+                <h2 className="text-lg font-bold">Ketentuan Peringatan Darurat</h2>
               </div>
               <button
                 onClick={handleCloseTermsModal}
@@ -143,7 +151,7 @@ export default function PanicButtonPage() {
                 onClick={handleCloseTermsModal}
                 className="border-gray-300"
               >
-                Cancel
+                Batal
               </Button>
               <Button 
                 onClick={handleAcceptTerms}
@@ -151,7 +159,7 @@ export default function PanicButtonPage() {
                 className={`${!termsAccepted ? 'bg-red-300' : 'bg-red-600 hover:bg-red-700'}`}
               >
                 <Shield className="h-4 w-4 mr-2" />
-                Continue
+                Lanjutkan
               </Button>
             </div>
           </motion.div>
@@ -162,7 +170,7 @@ export default function PanicButtonPage() {
 
   return (
     <StudentLayout>
-      {/* Profile Card - Improved with animation */}
+      {/* Kartu Profil - Ditingkatkan dengan animasi */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -178,9 +186,9 @@ export default function PanicButtonPage() {
                 </span>
               </div>
               <div>
-                <h3 className="font-medium text-gray-800">{userData?.name || "Student Name"}</h3>
-                <p className="text-sm text-gray-600">{userData?.nim || "No NIM"}</p>
-                <p className="text-sm text-gray-600">{userData?.jurusan || "No Department"}</p>
+                <h3 className="font-medium text-gray-800">{userData?.name || "Nama Mahasiswa"}</h3>
+                <p className="text-sm text-gray-600">{userData?.nim || "Tanpa NIM"}</p>
+                <p className="text-sm text-gray-600">{userData?.jurusan || "Tanpa Jurusan"}</p>
               </div>
             </div>
           </CardContent>
@@ -188,20 +196,20 @@ export default function PanicButtonPage() {
       </motion.div>
 
       <div className="container mx-auto px-4 flex flex-col items-center justify-center min-h-[80vh] max-w-3xl">
-        {/* Title Section with Animation */}
+        {/* Bagian Judul dengan Animasi */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="w-full text-center mb-8"
         >
-          <h2 className="text-3xl font-bold text-gray-800 mb-3">Emergency Assistance</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-3">Bantuan Darurat</h2>
           <p className="text-gray-600 max-w-lg mx-auto">
-            Press the panic button to send an emergency alert with your location to campus security.
+            Tekan tombol darurat untuk mengirim peringatan darurat dengan lokasi Anda ke keamanan kampus.
           </p>
         </motion.div>
 
-        {/* Location Error Message with Animation */}
+        {/* Pesan Kesalahan Lokasi dengan Animasi */}
         <AnimatePresence>
           {locationError && (
             <motion.div 
@@ -218,7 +226,7 @@ export default function PanicButtonPage() {
                     onClick={() => window.location.reload()} 
                     className="mt-2 text-sm underline hover:text-red-800 transition-colors"
                   >
-                    Retry location access
+                    Coba akses lokasi lagi
                   </button>
                 </div>
               </div>
@@ -226,7 +234,7 @@ export default function PanicButtonPage() {
           )}
         </AnimatePresence>
 
-        {/* Panic Button with Animation */}
+        {/* Tombol Darurat dengan Animasi */}
         <div className="w-full flex flex-col items-center mb-8">
           <AnimatePresence mode="wait">
             {isSending ? (
@@ -242,7 +250,7 @@ export default function PanicButtonPage() {
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
                 >
-                  Sending alert in {countdown} seconds
+                  Mengirim peringatan dalam {countdown} detik
                 </motion.div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -250,7 +258,7 @@ export default function PanicButtonPage() {
                   onClick={handleCancelPanic}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-full transition shadow-md"
                 >
-                  Cancel
+                  Batal
                 </motion.button>
               </motion.div>
             ) : (
@@ -287,12 +295,12 @@ export default function PanicButtonPage() {
                       </svg>
                     </motion.div>
                     <span className="text-2xl font-bold">
-                      {isConfirming ? "CONFIRM" : "PANIC"}
+                      {isConfirming ? "KONFIRMASI" : "DARURAT"}
                     </span>
                   </div>
                 </motion.button>
                 
-                {/* Enhanced Animation Effects */}
+                {/* Efek Animasi yang Ditingkatkan */}
                 {!isConfirming && !isSending && location && (
                   <>
                     <div className="absolute inset-0 rounded-full bg-red-500 opacity-20 animate-ping-slow"></div>
@@ -300,7 +308,7 @@ export default function PanicButtonPage() {
                   </>
                 )}
                 
-                {/* Improved Confirmation Animation */}
+                {/* Animasi Konfirmasi yang Ditingkatkan */}
                 {isConfirming && !isSending && (
                   <motion.div 
                     className="absolute inset-0 rounded-full bg-yellow-500 opacity-30"
@@ -313,7 +321,7 @@ export default function PanicButtonPage() {
           </AnimatePresence>
         </div>
 
-        {/* Emergency Contact Card with Animation */}
+        {/* Kartu Kontak Darurat dengan Animasi */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -323,32 +331,32 @@ export default function PanicButtonPage() {
           <div className="border-t border-gray-200 pt-6">
             <h3 className="text-lg font-semibold text-gray-700 flex items-center justify-center mb-3">
               <Phone className="h-5 w-5 mr-2" />
-              Emergency Contact
+              Kontak Darurat
             </h3>
             <motion.div 
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               className="bg-blue-100 p-4 rounded-lg text-center shadow-sm"
             >
-              <p className="text-blue-800 font-semibold">Campus Security</p>
+              <p className="text-blue-800 font-semibold">Keamanan Kampus</p>
               <p className="text-3xl font-bold text-blue-900">112</p>
-              <p className="text-sm text-blue-700 mt-1">Available 24/7</p>
+              <p className="text-sm text-blue-700 mt-1">Tersedia 24/7</p>
               <a 
                 href="tel:112" 
                 className="mt-3 inline-flex items-center text-blue-700 text-sm hover:text-blue-900"
               >
                 <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                Call directly
+                Hubungi langsung
               </a>
             </motion.div>
           </div>
         </motion.div>
       </div>
 
-      {/* Terms and Conditions Modal */}
+      {/* Modal Syarat dan Ketentuan */}
       <TermsModal />
 
-      {/* Custom CSS for animations */}
+      {/* CSS Kustom untuk animasi */}
       <style jsx>{`
         @keyframes ping-slow {
           0% {

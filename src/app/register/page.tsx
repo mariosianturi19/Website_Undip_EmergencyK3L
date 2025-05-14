@@ -14,30 +14,30 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-// Form schema validation with Zod
+// Skema validasi formulir dengan Zod
 const registerFormSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
+    name: z.string().min(2, "Nama harus memiliki minimal 2 karakter"),
     email: z
       .string()
-      .email("Please enter a valid email address")
-      .refine((email) => email.endsWith("@students.undip.ac.id"), "Please use your @students.undip.ac.id email"),
+      .email("Silakan masukkan alamat email yang valid")
+      .refine((email) => email.endsWith("@students.undip.ac.id"), "Silakan gunakan email @students.undip.ac.id Anda"),
     nim: z
       .string()
-      .min(14, "NIM must be 14 digits")
-      .max(14, "NIM must be 14 digits")
-      .regex(/^\d+$/, "NIM must contain only numbers"),
-    jurusan: z.string().min(2, "Department must be at least 2 characters"),
+      .min(14, "NIM harus 14 digit")
+      .max(14, "NIM harus 14 digit")
+      .regex(/^\d+$/, "NIM hanya boleh berisi angka"),
+    jurusan: z.string().min(2, "Jurusan harus memiliki minimal 2 karakter"),
     no_telp: z
       .string()
-      .min(11, "Phone number must be at least 11 digits")
-      .max(12, "Phone number must be at most 12 digits")
-      .regex(/^\d+$/, "Phone number must contain only numbers"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+      .min(11, "Nomor telepon harus minimal 11 digit")
+      .max(12, "Nomor telepon maksimal 12 digit")
+      .regex(/^\d+$/, "Nomor telepon hanya boleh berisi angka"),
+    password: z.string().min(6, "Kata sandi harus minimal 6 karakter"),
+    confirmPassword: z.string().min(6, "Kata sandi harus minimal 6 karakter"),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Kata sandi tidak cocok",
     path: ["confirmPassword"],
   })
 
@@ -87,33 +87,33 @@ export default function RegisterPage() {
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.message || "Registration failed")
+        throw new Error(result.message || "Pendaftaran gagal")
       }
 
-      toast.success("Account created", {
-        description: "Your account has been created successfully",
+      toast.success("Akun berhasil dibuat", {
+        description: "Akun Anda telah dibuat dengan sukses",
       })
 
-      // Redirect to login page
+      // Arahkan ke halaman login
       router.push("/login")
     } catch (error) {
-      console.error("Registration error:", error)
+      console.error("Kesalahan pendaftaran:", error)
 
-      let errorMessage = "An unexpected error occurred"
+      let errorMessage = "Terjadi kesalahan yang tidak terduga"
       if (error instanceof Error) {
         errorMessage = error.message
       }
 
       setError(errorMessage)
 
-      // Trigger shake animation on first error field
+      // Picu animasi getaran pada bidang kesalahan pertama
       const fieldErrors = form.formState.errors
       if (Object.keys(fieldErrors).length > 0) {
         setShakeError(Object.keys(fieldErrors)[0])
         setTimeout(() => setShakeError(""), 500)
       }
 
-      toast.error("Registration failed", {
+      toast.error("Pendaftaran gagal", {
         description: errorMessage,
       })
     } finally {
@@ -123,7 +123,7 @@ export default function RegisterPage() {
 
   return (
     <div className="relative flex min-h-screen w-full">
-      {/* Background Image */}
+      {/* Gambar Latar Belakang */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/UPT-K3L-logo.jpg"
@@ -135,14 +135,14 @@ export default function RegisterPage() {
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
       </div>
 
-      {/* Main container */}
+      {/* Wadah Utama */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:flex-row lg:px-8">
-        {/* Branding section (left side on desktop) */}
+        {/* Bagian Branding (sisi kiri pada desktop) */}
         <div className="mb-8 w-full max-w-md text-center lg:mb-0 lg:mr-12 lg:w-1/2 lg:text-left">
           <div className="mb-6 flex justify-center lg:justify-start">
               <img
                 src="https://firebasestorage.googleapis.com/v0/b/seputipy.appspot.com/o/covers%2Fundip.png?alt=media"
-                alt="UNDIP Logo"
+                alt="Logo UNDIP"
                 className="h-32 w-29"
               />
           </div>
@@ -155,12 +155,12 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Registration form */}
+        {/* Formulir Pendaftaran */}
         <div className="w-full max-w-md lg:w-1/2">
           <div className="overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-300 hover:shadow-2xl">
             <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-t-2xl">
-              <h2 className="text-2xl font-bold text-white text-center">Create Account</h2>
-              <p className="text-gray-300 text-center mt-1">Register as a student</p>
+              <h2 className="text-2xl font-bold text-white text-center">Buat Akun</h2>
+              <p className="text-gray-300 text-center mt-1">Daftar sebagai mahasiswa</p>
             </div>
 
             {error && (
@@ -179,7 +179,7 @@ export default function RegisterPage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Full Name</FormLabel>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</FormLabel>
                       <div
                         className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "name" ? "animate-shake" : ""} ${form.formState.errors.name ? "ring-2 ring-red-400" : ""}`}
                       >
@@ -188,7 +188,7 @@ export default function RegisterPage() {
                         </span>
                         <FormControl>
                           <Input
-                            placeholder="John Doe"
+                            placeholder="Nama Lengkap"
                             className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
                             {...field}
                             disabled={isLoading}
@@ -205,7 +205,7 @@ export default function RegisterPage() {
                   name="nim"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">NIM (Student ID)</FormLabel>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">NIM (Nomor Induk Mahasiswa)</FormLabel>
                       <div
                         className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "nim" ? "animate-shake" : ""} ${form.formState.errors.nim ? "ring-2 ring-red-400" : ""}`}
                       >
@@ -233,7 +233,7 @@ export default function RegisterPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
-                        Department (Jurusan)
+                        Jurusan
                       </FormLabel>
                       <div
                         className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "jurusan" ? "animate-shake" : ""} ${form.formState.errors.jurusan ? "ring-2 ring-red-400" : ""}`}
@@ -243,7 +243,7 @@ export default function RegisterPage() {
                         </span>
                         <FormControl>
                           <Input
-                            placeholder="Computer Science"
+                            placeholder="Teknik Informatika"
                             className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
                             {...field}
                             disabled={isLoading}
@@ -261,7 +261,7 @@ export default function RegisterPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="block text-sm font-medium text-gray-700 mb-1">
-                        Phone Number
+                        Nomor Telepon
                       </FormLabel>
                       <div
                         className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "no_telp" ? "animate-shake" : ""} ${form.formState.errors.no_telp ? "ring-2 ring-red-400" : ""}`}
@@ -289,7 +289,7 @@ export default function RegisterPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Email Address</FormLabel>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Alamat Email</FormLabel>
                       <div
                         className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "email" ? "animate-shake" : ""} ${form.formState.errors.email ? "ring-2 ring-red-400" : ""}`}
                       >
@@ -299,7 +299,7 @@ export default function RegisterPage() {
                         <FormControl>
                           <Input
                             type="email"
-                            placeholder="your.email@students.undip.ac.id"
+                            placeholder="email.anda@students.undip.ac.id"
                             className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
                             {...field}
                             disabled={isLoading}
@@ -316,7 +316,7 @@ export default function RegisterPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Password</FormLabel>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Kata Sandi</FormLabel>
                       <div
                         className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "password" ? "animate-shake" : ""} ${form.formState.errors.password ? "ring-2 ring-red-400" : ""}`}
                       >
@@ -350,7 +350,7 @@ export default function RegisterPage() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</FormLabel>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Kata Sandi</FormLabel>
                       <div
                         className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "confirmPassword" ? "animate-shake" : ""} ${form.formState.errors.confirmPassword ? "ring-2 ring-red-400" : ""}`}
                       >
@@ -388,12 +388,12 @@ export default function RegisterPage() {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating account...
+                      Membuat akun...
                     </>
                   ) : (
                     <>
                       <User className="h-4 w-4 mr-2" />
-                      Register
+                      Daftar
                     </>
                   )}
                 </Button>
@@ -403,7 +403,7 @@ export default function RegisterPage() {
                     href="/login"
                     className="text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium"
                   >
-                    Already have an account? Login
+                    Sudah punya akun? Masuk
                   </Link>
                 </div>
               </form>

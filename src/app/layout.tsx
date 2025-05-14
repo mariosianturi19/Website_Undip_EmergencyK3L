@@ -16,13 +16,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "UNDIP Emergency",
-  description: "Emergency response system for Diponegoro University",
+  title: "SIGAP UNDIP",
+  description: "Sistem Informasi Gawat dan Pelaporan Universitas Diponegoro",
   icons: {
     icon: [
       { url: '/images/Undip-Logo.png' }, // Ikon utama dari file PNG
     ],
-    // Anda juga bisa menambahkan ukuran lain jika dibutuhkan
     apple: { url: '/images/Undip-Logo.png' }, // Untuk perangkat Apple
   },
 };
@@ -33,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="id" suppressHydrationWarning>
       <body 
         className={`${geistSans.variable} ${geistMono.variable} antialiased`} 
         suppressHydrationWarning

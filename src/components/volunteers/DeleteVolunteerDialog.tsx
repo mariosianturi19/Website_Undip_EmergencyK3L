@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-// Update the interface to match the actual API response
+// Perbarui interface agar sesuai dengan respons API sebenarnya
 interface Volunteer {
   id: number;
   name: string;
@@ -51,14 +51,14 @@ export default function DeleteVolunteerDialog({
     setError(null);
 
     try {
-      // Get access token
+      // Dapatkan token akses
       const token = await getAccessToken();
       
       if (!token) {
-        throw new Error("Authentication required");
+        throw new Error("Autentikasi diperlukan");
       }
 
-      // Use the updated API endpoint for deleting users
+      // Gunakan endpoint API yang diperbarui untuk menghapus pengguna
       const response = await fetch(`/api/volunteers/${volunteer.id}`, {
         method: "DELETE",
         headers: {
@@ -68,14 +68,14 @@ export default function DeleteVolunteerDialog({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to delete volunteer");
+        throw new Error(errorData.message || "Gagal menghapus relawan");
       }
 
       onDelete();
     } catch (error) {
-      console.error("Error deleting volunteer:", error);
-      setError(error instanceof Error ? error.message : "An unexpected error occurred");
-      toast.error("Failed to delete volunteer");
+      console.error("Error menghapus relawan:", error);
+      setError(error instanceof Error ? error.message : "Terjadi kesalahan yang tidak terduga");
+      toast.error("Gagal menghapus relawan");
     } finally {
       setIsDeleting(false);
     }
@@ -85,10 +85,10 @@ export default function DeleteVolunteerDialog({
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete the volunteer account for <strong>{volunteer.name}</strong> ({volunteer.email}).
-            This action cannot be undone.
+            Tindakan ini akan menghapus secara permanen akun relawan untuk <strong>{volunteer.name}</strong> ({volunteer.email}).
+            Tindakan ini tidak dapat dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         
@@ -102,7 +102,7 @@ export default function DeleteVolunteerDialog({
         )}
         
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
           <Button 
             variant="destructive" 
             onClick={handleDelete}
@@ -111,10 +111,10 @@ export default function DeleteVolunteerDialog({
             {isDeleting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Deleting...
+                Menghapus...
               </>
             ) : (
-              <>Delete</>
+              <>Hapus</>
             )}
           </Button>
         </AlertDialogFooter>

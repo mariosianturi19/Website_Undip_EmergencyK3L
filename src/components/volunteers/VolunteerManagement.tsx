@@ -29,7 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Update the interface to match the actual API response
+// Perbarui interface agar sesuai dengan respons API sebenarnya
 interface Volunteer {
   id: number;
   name: string;
@@ -60,7 +60,7 @@ export default function VolunteerManagement() {
     try {
       const token = await getAccessToken();
       if (!token) {
-        toast.error("Authentication required");
+        toast.error("Autentikasi diperlukan");
         return;
       }
 
@@ -72,18 +72,18 @@ export default function VolunteerManagement() {
       });
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch volunteers: ${response.status}`);
+        throw new Error(`Gagal mengambil data relawan: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log("Volunteers data:", data);
+      console.log("Data relawan:", data);
       
-      // Handle the data based on the API response structure
+      // Tangani data berdasarkan struktur respons API
       const volunteersData = Array.isArray(data) ? data : data.data || [];
       setVolunteers(volunteersData);
     } catch (error) {
-      console.error("Error fetching volunteers:", error);
-      toast.error("Failed to load volunteers");
+      console.error("Error mengambil data relawan:", error);
+      toast.error("Gagal memuat data relawan");
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -121,18 +121,18 @@ export default function VolunteerManagement() {
     fetchVolunteers();
     toast.success(
       formMode === 'create' 
-        ? "Volunteer created successfully" 
-        : "Volunteer updated successfully"
+        ? "Relawan berhasil ditambahkan" 
+        : "Data relawan berhasil diperbarui"
     );
   };
 
   const onVolunteerDeleted = () => {
     setIsDeleteDialogOpen(false);
     fetchVolunteers();
-    toast.success("Volunteer deleted successfully");
+    toast.success("Relawan berhasil dihapus");
   };
 
-  // Sort volunteers
+  // Mengurutkan relawan
   const sortVolunteers = (a: Volunteer, b: Volunteer) => {
     let valueA, valueB;
     
@@ -165,7 +165,7 @@ export default function VolunteerManagement() {
     }
   };
 
-  // Toggle sort direction or change sort field
+  // Beralih arah pengurutan atau mengubah bidang pengurutan
   const handleSort = (field: string) => {
     if (field === sortField) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -175,7 +175,7 @@ export default function VolunteerManagement() {
     }
   };
 
-  // Filter volunteers based on search query
+  // Filter relawan berdasarkan kueri pencarian
   const filteredVolunteers = volunteers
     .filter(volunteer => 
       volunteer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -185,7 +185,7 @@ export default function VolunteerManagement() {
     )
     .sort(sortVolunteers);
 
-  // Animation variants
+  // Variasi animasi
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -224,15 +224,15 @@ export default function VolunteerManagement() {
         className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
       >
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Volunteer Management</h1>
-          <p className="text-gray-500 mt-1">Manage volunteers and their information</p>
+          <h1 className="text-2xl font-bold text-gray-800">Manajemen Relawan</h1>
+          <p className="text-gray-500 mt-1">Kelola relawan dan informasi mereka</p>
         </div>
         <Button 
           onClick={handleCreateVolunteer} 
           className="bg-blue-600 hover:bg-blue-700 shadow-sm transition-all"
         >
           <UserPlus className="h-4 w-4 mr-2" />
-          Add Volunteer
+          Tambah Relawan
         </Button>
       </motion.div>
 
@@ -243,7 +243,7 @@ export default function VolunteerManagement() {
       >
         <Card className="border border-gray-200 shadow-sm">
           <CardHeader className="pb-3 border-b">
-            <CardTitle className="text-xl font-bold text-gray-800">Volunteers</CardTitle>
+            <CardTitle className="text-xl font-bold text-gray-800">Daftar Relawan</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="p-4 border-b bg-gray-50">
@@ -251,7 +251,7 @@ export default function VolunteerManagement() {
                 <div className="relative flex-1 w-full">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                   <Input
-                    placeholder="Search volunteers..."
+                    placeholder="Cari relawan..."
                     className="pl-10 border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -269,14 +269,14 @@ export default function VolunteerManagement() {
                     ) : (
                       <RefreshCw className="h-4 w-4" />
                     )}
-                    <span className="ml-2 hidden sm:inline">Refresh</span>
+                    <span className="ml-2 hidden sm:inline">Segarkan</span>
                   </Button>
                   <Button 
                     variant="outline" 
                     className="shrink-0 border-gray-200"
                   >
                     <SlidersHorizontal className="h-4 w-4" />
-                    <span className="ml-2 hidden sm:inline">Filters</span>
+                    <span className="ml-2 hidden sm:inline">Filter</span>
                   </Button>
                 </div>
               </div>
@@ -298,26 +298,26 @@ export default function VolunteerManagement() {
                   </div>
                   {searchQuery ? (
                     <>
-                      <h3 className="text-lg font-medium text-gray-800 mb-1">No matching volunteers</h3>
-                      <p className="text-gray-500 mb-4">Try using different search criteria</p>
+                      <h3 className="text-lg font-medium text-gray-800 mb-1">Tidak ada relawan yang cocok</h3>
+                      <p className="text-gray-500 mb-4">Coba gunakan kriteria pencarian yang berbeda</p>
                       <Button 
                         variant="outline" 
                         onClick={() => setSearchQuery('')}
                         className="border-gray-200"
                       >
-                        Clear search
+                        Hapus pencarian
                       </Button>
                     </>
                   ) : (
                     <>
-                      <h3 className="text-lg font-medium text-gray-800 mb-1">No volunteers found</h3>
-                      <p className="text-gray-500 mb-4">Add your first volunteer to get started</p>
+                      <h3 className="text-lg font-medium text-gray-800 mb-1">Tidak ada relawan ditemukan</h3>
+                      <p className="text-gray-500 mb-4">Tambahkan relawan pertama Anda untuk memulai</p>
                       <Button 
                         onClick={handleCreateVolunteer}
                         className="bg-blue-600 hover:bg-blue-700"
                       >
                         <UserPlus className="h-4 w-4 mr-2" />
-                        Add First Volunteer
+                        Tambah Relawan Pertama
                       </Button>
                     </>
                   )}
@@ -333,7 +333,7 @@ export default function VolunteerManagement() {
                           className="flex items-center font-medium"
                           onClick={() => handleSort('name')}
                         >
-                          Volunteer
+                          Relawan
                           {getSortIcon('name')}
                         </button>
                       </th>
@@ -360,11 +360,11 @@ export default function VolunteerManagement() {
                           className="flex items-center font-medium"
                           onClick={() => handleSort('phone')}
                         >
-                          Phone
+                          Telepon
                           {getSortIcon('phone')}
                         </button>
                       </th>
-                      <th className="px-4 py-3 text-right">Actions</th>
+                      <th className="px-4 py-3 text-right">Tindakan</th>
                     </tr>
                   </thead>
                   <motion.tbody
@@ -389,7 +389,7 @@ export default function VolunteerManagement() {
                               </div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">{volunteer.name}</div>
-                                <div className="text-xs text-gray-500">Joined: {new Date(volunteer.created_at).toLocaleDateString()}</div>
+                                <div className="text-xs text-gray-500">Bergabung: {new Date(volunteer.created_at).toLocaleDateString()}</div>
                               </div>
                             </div>
                           </td>
@@ -427,7 +427,7 @@ export default function VolunteerManagement() {
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem onClick={() => handleDeleteVolunteer(volunteer)} className="cursor-pointer">
                                     <Trash2 className="h-4 w-4 mr-2 text-red-600" />
-                                    <span className="text-red-600">Delete</span>
+                                    <span className="text-red-600">Hapus</span>
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>

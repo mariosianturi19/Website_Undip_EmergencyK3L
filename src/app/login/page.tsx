@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, EyeOff, Loader2, Shield, Mail, Lock, LogIn, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Shield, Mail, Lock, LogIn, AlertCircle, InfoIcon } from 'lucide-react'
 import { toast } from "sonner"
 import Link from "next/link"
 import Image from "next/image"
@@ -14,10 +14,10 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-// Form schema validation with Zod
+// Form schema validation dengan Zod
 const loginFormSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email("Silakan masukkan alamat email yang valid"),
+  password: z.string().min(1, "Kata sandi diperlukan"),
 })
 
 type LoginFormValues = z.infer<typeof loginFormSchema>
@@ -42,7 +42,7 @@ const onSubmit = async (data: LoginFormValues) => {
   setError(null);
 
   try {
-    // Use our local API route
+    // Gunakan rute API lokal
     const response = await fetch("/api/login", {
       method: "POST",
       headers: {
@@ -57,52 +57,55 @@ const onSubmit = async (data: LoginFormValues) => {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "Login failed");
+      throw new Error(result.message || "Gagal masuk");
     }
 
-    // Store tokens in localStorage
+    // Simpan token di localStorage
     localStorage.setItem("access_token", result.access_token);
     localStorage.setItem("refresh_token", result.refresh_token);
 
-    // Calculate and store expiration time
+    // Hitung dan simpan waktu kedaluwarsa
     const expiresAt = Date.now() + result.expires_in * 1000;
     localStorage.setItem("expires_at", expiresAt.toString());
 
-    // Store user role and data - use data from the result as structure may vary
+    // Simpan peran pengguna dan data - gunakan data dari hasil karena strukturnya mungkin berbeda
     if (result.user) {
-      // Store the user role - depending on API response format
+      // Simpan peran pengguna - tergantung format respons API
       if (result.user.role) {
         localStorage.setItem("user_role", result.user.role);
       }
       
-      // Store the entire user object
+      // Simpan seluruh objek pengguna
       localStorage.setItem("user_data", JSON.stringify(result.user));
     }
 
-    toast.success("Welcome back!", {
-      description: "You have been successfully logged in",
+    // Mendapatkan nama pengguna dari data respons untuk pesan toast
+    const userName = result.user?.name || "Pengguna";
+
+    toast.success(`Selamat datang kembali, ${userName}!`, {
+      description: "Anda telah berhasil masuk",
     });
 
-    // Redirect based on role
+    // Arahkan berdasarkan peran
     const userRole = result.user?.role || "";
     if (userRole === "user") {
-      router.push("/student"); // Regular users go to student panic button page
+      router.push("/student"); // Pengguna biasa pergi ke halaman tombol panik mahasiswa
     } else {
-      router.push("/dashboard"); // Admins and volunteers go to dashboard
+      router.push("/dashboard"); // Admin dan relawan pergi ke dasbor
     }
   } catch (error) {
-    console.error("Login error:", error);
-    setError(error instanceof Error ? error.message : "An unexpected error occurred");
+    console.error("Kesalahan login:", error);
+    setError(error instanceof Error ? error.message : "Terjadi kesalahan yang tidak terduga");
 
-    // Trigger shake animation on first error field
+    // Picu animasi getaran pada bidang kesalahan pertama
     const fieldErrors = form.formState.errors;
     if (Object.keys(fieldErrors).length > 0) {
       setShakeError(Object.keys(fieldErrors)[0]);
       setTimeout(() => setShakeError(""), 500);
     }
 
-    toast.error("Login failed", {
-      description: error instanceof Error ? error.message : "An unexpected error occurred",
+    toast.error("Gagal masuk", {
+      description: error instanceof Error ? error.message : "Terjadi kesalahan yang tidak terduga",
     });
   } finally {
     setIsLoading(false);
@@ -111,7 +114,7 @@ const onSubmit = async (data: LoginFormValues) => {
 
   return (
     <div className="relative flex min-h-screen w-full">
-          {/* Background Image */}
+          {/* Gambar Latar Belakang */}
           <div className="absolute inset-0 z-0">
           <Image
             src="/images/UPT-K3L-logo.jpg"
@@ -123,14 +126,14 @@ const onSubmit = async (data: LoginFormValues) => {
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
     </div>
 
-      {/* Main container */}
+      {/* Wadah Utama */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:flex-row lg:px-8">
-        {/* Branding section (left side on desktop) */}
+        {/* Bagian Branding (sisi kiri pada desktop) */}
         <div className="mb-8 w-full max-w-md text-center lg:mb-0 lg:mr-12 lg:w-1/2 lg:text-left">
           <div className="mb-6 flex justify-center lg:justify-start">
               <img
                 src="https://firebasestorage.googleapis.com/v0/b/seputipy.appspot.com/o/covers%2Fundip.png?alt=media"
-                alt="UNDIP Logo"
+                alt="Logo UNDIP"
                 className="h-32 w-29"
               />
           </div>
@@ -143,12 +146,12 @@ const onSubmit = async (data: LoginFormValues) => {
           </p>
         </div>
 
-        {/* Login form */}
+        {/* Formulir Login */}
         <div className="w-full max-w-md lg:w-1/2">
           <div className="overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-300 hover:shadow-2xl">
             <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-t-2xl">
-              <h2 className="text-2xl font-bold text-white text-center">Welcome Back</h2>
-              <p className="text-gray-300 text-center mt-1">Login to access SIGAP UNDIP</p>
+              <h2 className="text-2xl font-bold text-white text-center">Selamat Datang Kembali</h2>
+              <p className="text-gray-300 text-center mt-1">Masuk untuk mengakses SIGAP UNDIP</p>
             </div>
 
             {error && (
@@ -167,7 +170,7 @@ const onSubmit = async (data: LoginFormValues) => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Email Address</FormLabel>
+                      <FormLabel className="block text-sm font-medium text-gray-700 mb-1">Email</FormLabel>
                       <div
                         className={`relative rounded-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-gray-500 ${shakeError === "email" ? "animate-shake" : ""} ${form.formState.errors.email ? "ring-2 ring-red-400" : ""}`}
                       >
@@ -177,7 +180,7 @@ const onSubmit = async (data: LoginFormValues) => {
                         <FormControl>
                           <Input
                             type="email"
-                            placeholder="your.email@students.undip.ac.id"
+                            placeholder="E-mail official Undip"
                             className="pl-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
                             {...field}
                             disabled={isLoading}
@@ -204,7 +207,7 @@ const onSubmit = async (data: LoginFormValues) => {
                         <FormControl>
                           <Input
                             type={showPassword ? "text" : "password"}
-                            placeholder="••••••••"
+                            placeholder="Enter your password"
                             className="pl-10 pr-10 border-0 shadow-gray-400 bg-white focus:bg-white transition-all duration-200"
                             {...field}
                             disabled={isLoading}
@@ -232,22 +235,32 @@ const onSubmit = async (data: LoginFormValues) => {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
+                      Sedang Masuk...
                     </>
                   ) : (
                     <>
                       <LogIn className="h-4 w-4 mr-2" />
-                      Login
+                      Masuk
                     </>
                   )}
                 </Button>
+                
+                {/* Notes baru di bawah tombol masuk dengan style lebih mirip gambar */}
+                <div className="bg-blue-50 border-l-4 border-blue-500 py-2 px-4 rounded-md mt-0.5">
+                  <div className="flex items-center">
+                    <InfoIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
+                    <p className="text-sm text-blue-700">
+                      Jika belum pernah menggunakan SIGAP UNDIP, silakan daftar terlebih dahulu
+                    </p>
+                  </div>
+                </div>
 
                 <div className="flex justify-center pt-2">
                   <Link
                     href="/register"
                     className="text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium"
                   >
-                    Need an account? Register
+                    Belum punya akun? Daftar
                   </Link>
                 </div>
               </form>

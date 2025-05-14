@@ -44,7 +44,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
   )
 }
 
-// Enhanced toast functions with better defaults
+// Fungsi toast yang ditingkatkan dengan default yang lebih baik
 const toast = {
   ...sonnerToast,
   success: (message: string, options?: any) =>

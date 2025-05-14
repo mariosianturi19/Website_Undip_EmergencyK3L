@@ -16,18 +16,18 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // Opsi jenis masalah
 const reportTypeOptions = [
-  { value: "electrical", label: "Electrical Issues" },
-  { value: "tree", label: "Tree Hazard" },
-  { value: "stairs", label: "Stairway Issues" },
-  { value: "elevator", label: "Elevator Problems" },
-  { value: "door", label: "Door Issues" },
-  { value: "infrastructure", label: "Infrastructure" },
-  { value: "water_supply", label: "Water Supply" },
-  { value: "waste_management", label: "Waste Management" },
-  { value: "public_safety", label: "Public Safety" },
-  { value: "public_health", label: "Public Health" },
-  { value: "environmental", label: "Environmental" },
-  { value: "other", label: "Other" }
+  { value: "electrical", label: "Masalah Listrik" },
+  { value: "tree", label: "Bahaya Pohon" },
+  { value: "stairs", label: "Masalah Tangga" },
+  { value: "elevator", label: "Masalah Lift" },
+  { value: "door", label: "Masalah Pintu" },
+  { value: "infrastructure", label: "Infrastruktur" },
+  { value: "water_supply", label: "Pasokan Air" },
+  { value: "waste_management", label: "Pengelolaan Sampah" },
+  { value: "public_safety", label: "Keselamatan Umum" },
+  { value: "public_health", label: "Kesehatan Umum" },
+  { value: "environmental", label: "Lingkungan" },
+  { value: "other", label: "Lainnya" }
 ];
 
 export default function ReportPhotoPage() {
@@ -41,27 +41,27 @@ export default function ReportPhotoPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // Check authentication when the component mounts
+  // Periksa autentikasi saat komponen dipasang
   useEffect(() => {
     if (!isAuthenticated()) {
-      toast.error("You must be logged in to submit reports");
+      toast.error("Anda harus masuk untuk mengirim laporan");
       router.push("/login");
     }
   }, [router]);
 
-  // Function to handle file selection
+  // Fungsi untuk menangani pemilihan file
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
       
-      // Clear any previous file error
+      // Hapus kesalahan file sebelumnya
       setFormErrors(prev => {
         const { photo, ...rest } = prev;
         return rest;
       });
       
-      // Create a preview URL
+      // Buat URL pratinjau
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result as string);
@@ -70,14 +70,14 @@ export default function ReportPhotoPage() {
     }
   };
 
-  // Function to handle camera access
+  // Fungsi untuk menangani akses kamera
   const handleCameraAccess = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  // Function to clear selected image
+  // Fungsi untuk menghapus gambar yang dipilih
   const handleClearImage = () => {
     setPreviewImage(null);
     setSelectedFile(null);
@@ -86,9 +86,9 @@ export default function ReportPhotoPage() {
     }
   };
 
-  // Function to reset the form
+  // Fungsi untuk mengatur ulang formulir
   const resetForm = () => {
-    // Reset all form fields
+    // Atur ulang semua bidang formulir
     setPreviewImage(null);
     setSelectedFile(null);
     setReportType("");
@@ -100,37 +100,37 @@ export default function ReportPhotoPage() {
     }
   };
 
-  // Function to validate form
+  // Fungsi untuk memvalidasi formulir
   const validateForm = () => {
     const errors: {[key: string]: string} = {};
     
     if (!selectedFile) {
-      errors.photo = "Please upload an image for your report";
+      errors.photo = "Silakan unggah gambar untuk laporan Anda";
     }
     
     if (!reportType) {
-      errors.type = "Please select a report type";
+      errors.type = "Silakan pilih jenis laporan";
     }
     
     if (!description || description.trim().length < 10) {
-      errors.description = "Please provide a detailed description (at least 10 characters)";
+      errors.description = "Silakan berikan deskripsi detail (minimal 10 karakter)";
     }
     
     if (!location || location.trim().length < 3) {
-      errors.location = "Please provide a valid location (at least 3 characters)";
+      errors.location = "Silakan berikan lokasi yang valid (minimal 3 karakter)";
     }
     
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // Function to handle form submission
+  // Fungsi untuk menangani pengiriman formulir
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
-    // Validate form
+    // Validasi formulir
     if (!validateForm()) {
-      // Show error toast for the first error
+      // Tampilkan pesan kesalahan untuk kesalahan pertama
       const firstError = Object.values(formErrors)[0];
       if (firstError) {
         toast.error(firstError);
@@ -138,26 +138,26 @@ export default function ReportPhotoPage() {
       return;
     }
 
-    // Check if authenticated before submission
+    // Periksa apakah terautentikasi sebelum pengiriman
     if (!isAuthenticated()) {
-      toast.error("Your session has expired. Please login again.");
+      toast.error("Sesi Anda telah berakhir. Silakan masuk lagi.");
       router.push("/login");
       return;
     }
     
-    // Submit form
+    // Kirim formulir
     setIsSubmitting(true);
     
     try {
-      // Get fresh token before submitting
+      // Dapatkan token baru sebelum mengirim
       const token = await getAccessToken();
       
       if (!token) {
-        throw new Error("Authentication required. Please login again.");
+        throw new Error("Autentikasi diperlukan. Silakan masuk lagi.");
       }
 
-      // STEP 1: Upload foto terlebih dahulu
-      console.log("Uploading photo...");
+      // LANGKAH 1: Unggah foto terlebih dahulu
+      console.log("Mengunggah foto...");
       
       const photoFormData = new FormData();
       photoFormData.append('photo', selectedFile!);
@@ -172,18 +172,18 @@ export default function ReportPhotoPage() {
       
       if (!photoResponse.ok) {
         const errorData = await photoResponse.json();
-        throw new Error(errorData.message || `Photo upload failed with status ${photoResponse.status}`);
+        throw new Error(errorData.message || `Unggahan foto gagal dengan status ${photoResponse.status}`);
       }
       
       const photoData = await photoResponse.json();
-      console.log("Photo upload response:", photoData);
+      console.log("Respons unggahan foto:", photoData);
       
       if (!photoData.success || !photoData.photo_path) {
-        throw new Error("Failed to get photo path from server");
+        throw new Error("Gagal mendapatkan jalur foto dari server");
       }
       
-      // STEP 2: Kirim laporan dengan photo_path yang didapat
-      console.log("Submitting report with photo path:", photoData.photo_path);
+      // LANGKAH 2: Kirim laporan dengan photo_path yang didapat
+      console.log("Mengirim laporan dengan jalur foto:", photoData.photo_path);
       
       const reportData = {
         photo_path: photoData.photo_path,
@@ -203,31 +203,31 @@ export default function ReportPhotoPage() {
       
       if (!reportResponse.ok) {
         const errorData = await reportResponse.json();
-        throw new Error(errorData.message || `Report submission failed with status ${reportResponse.status}`);
+        throw new Error(errorData.message || `Pengiriman laporan gagal dengan status ${reportResponse.status}`);
       }
       
       const reportResult = await reportResponse.json();
-      console.log("Report submission response:", reportResult);
+      console.log("Respons pengiriman laporan:", reportResult);
 
-      toast.success("Report submitted successfully", {
-        description: "Your report has been sent and will be reviewed shortly.",
+      toast.success("Laporan berhasil dikirim", {
+        description: "Laporan Anda telah dikirim dan akan segera ditinjau.",
       });
       
-      // Reset form instead of redirecting
+      // Atur ulang formulir, bukan mengalihkan
       resetForm();
       
     } catch (error) {
-      console.error("Error submitting report:", error);
+      console.error("Kesalahan mengirim laporan:", error);
       
-      // Handle authentication errors specifically
-      if (error instanceof Error && error.message.includes("Authentication required")) {
-        toast.error("Your session has expired", {
-          description: "Please login again to continue.",
+      // Tangani kesalahan autentikasi secara khusus
+      if (error instanceof Error && error.message.includes("Autentikasi diperlukan")) {
+        toast.error("Sesi Anda telah berakhir", {
+          description: "Silakan masuk lagi untuk melanjutkan.",
         });
         router.push("/login");
       } else {
-        toast.error("Failed to submit report", {
-          description: error instanceof Error ? error.message : "An unexpected error occurred",
+        toast.error("Gagal mengirim laporan", {
+          description: error instanceof Error ? error.message : "Terjadi kesalahan yang tidak terduga",
         });
       }
     } finally {
@@ -235,7 +235,7 @@ export default function ReportPhotoPage() {
     }
   };
 
-  // Function to get error status for a field
+  // Fungsi untuk mendapatkan status kesalahan untuk bidang
   const hasError = (field: string) => !!formErrors[field];
 
   return (
@@ -247,9 +247,9 @@ export default function ReportPhotoPage() {
           transition={{ duration: 0.5 }}
           className="my-6 text-center"
         >
-          <h1 className="text-2xl font-bold mb-2">Report an Issue</h1>
+          <h1 className="text-2xl font-bold mb-2">Laporkan Masalah</h1>
           <p className="text-gray-600 mb-6">
-            Upload a photo and details about the issue
+            Unggah foto dan detail tentang masalah
           </p>
         </motion.div>
 
@@ -260,11 +260,11 @@ export default function ReportPhotoPage() {
           className="bg-white rounded-lg shadow-md p-6 border border-gray-100"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Image Upload Section */}
+            {/* Bagian Unggah Gambar */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="photo" className="block text-sm font-medium text-gray-700">
-                  Photo Evidence
+                  Bukti Foto
                 </Label>
                 {hasError('photo') && (
                   <span className="text-xs text-red-500 flex items-center">
@@ -290,7 +290,7 @@ export default function ReportPhotoPage() {
                       <div className="relative w-full aspect-video overflow-hidden rounded-lg">
                         <img 
                           src={previewImage} 
-                          alt="Preview" 
+                          alt="Pratinjau" 
                           className="w-full h-full object-contain" 
                         />
                         <motion.button
@@ -326,7 +326,7 @@ export default function ReportPhotoPage() {
                       </motion.div>
                       <div className="flex text-sm text-gray-600 justify-center">
                         <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500">
-                          <span className="underline">Upload a file</span>
+                          <span className="underline">Unggah berkas</span>
                           <input
                             id="file-upload"
                             name="file-upload"
@@ -337,9 +337,9 @@ export default function ReportPhotoPage() {
                             onChange={handleFileSelect}
                           />
                         </label>
-                        <p className="pl-1">or drag and drop</p>
+                        <p className="pl-1">atau seret dan lepas</p>
                       </div>
-                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, GIF hingga 10MB</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -354,17 +354,17 @@ export default function ReportPhotoPage() {
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <Upload className="h-4 w-4 mr-2" />
-                    Choose File
+                    Pilih Berkas
                   </Button>
                 </motion.div>
               </div>
             </div>
 
-            {/* Report Type Dropdown */}
+            {/* Dropdown Jenis Laporan */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="report-type" className="block text-sm font-medium text-gray-700">
-                  Report Type
+                  Jenis Laporan
                 </Label>
                 {hasError('type') && (
                   <span className="text-xs text-red-500 flex items-center">
@@ -383,17 +383,17 @@ export default function ReportPhotoPage() {
                     return rest;
                   });
                 }}
-                placeholder="Select type of issue"
+                placeholder="Pilih jenis masalah"
                 options={reportTypeOptions}
                 error={hasError('type')}
               />
             </div>
 
-            {/* Location Input */}
+            {/* Input Lokasi */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="location" className="block text-sm font-medium text-gray-700">
-                  Location
+                  Lokasi
                 </Label>
                 {hasError('location') && (
                   <span className="text-xs text-red-500 flex items-center">
@@ -406,7 +406,7 @@ export default function ReportPhotoPage() {
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <Input
                   id="location"
-                  placeholder="Building/Floor/Room or specific area"
+                  placeholder="Gedung/Lantai/Ruangan atau area spesifik"
                   value={location}
                   onChange={(e) => {
                     setLocation(e.target.value);
@@ -421,15 +421,15 @@ export default function ReportPhotoPage() {
                 />
               </div>
               <p className="text-xs text-gray-500">
-                Be as specific as possible about the location of the issue
+                Berikan detail lokasi masalah seakurat mungkin
               </p>
             </div>
 
-            {/* Description Textarea */}
+            {/* Textarea Deskripsi */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                  Description
+                  Deskripsi
                 </Label>
                 {hasError('description') && (
                   <span className="text-xs text-red-500 flex items-center">
@@ -440,7 +440,7 @@ export default function ReportPhotoPage() {
               </div>
               <Textarea
                 id="description"
-                placeholder="Please provide details about the issue..."
+                placeholder="Berikan rincian tentang masalah tersebut..."
                 rows={5}
                 value={description}
                 onChange={(e) => {
@@ -455,11 +455,11 @@ export default function ReportPhotoPage() {
                 className={`resize-none ${hasError('description') ? 'border-red-300' : ''}`}
               />
               <p className="text-xs text-gray-500">
-                Be specific about the severity and any potential safety concerns.
+                Jelaskan dengan spesifik tentang tingkat keparahan dan potensi masalah keamanan.
               </p>
             </div>
 
-            {/* Submit and Reset Buttons */}
+            {/* Tombol Kirim dan Reset */}
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-2">
               <motion.div 
                 className="sm:flex-1" 
@@ -477,12 +477,12 @@ export default function ReportPhotoPage() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Submitting...
+                      Mengirim...
                     </>
                   ) : (
                     <>
                       <Check className="h-5 w-5 mr-2" />
-                      Submit Report
+                      Kirim Laporan
                     </>
                   )}
                 </Button>

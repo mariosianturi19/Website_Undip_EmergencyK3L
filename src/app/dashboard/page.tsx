@@ -243,22 +243,6 @@ export default function Dashboard() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="flex space-x-2"
           >
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="border-gray-200 text-gray-700 hover:bg-gray-50"
-              onClick={() => fetchCounts()}
-            >
-              <ArrowUp className="h-4 w-4 mr-1" />
-              Refresh
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="border-gray-200 text-gray-700 hover:bg-gray-50"
-            >
-              Export
-            </Button>
           </motion.div>
         </div>
 
@@ -397,18 +381,7 @@ export default function Dashboard() {
                       </motion.div>
                     ))
                   ) : (
-                    <div className="flex flex-col items-center justify-center p-8 text-gray-500">
-                      <Bell className="h-12 w-12 text-gray-300 mb-2" />
-                      <p>No recent activities found</p>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="mt-2 text-blue-600 hover:text-blue-800"
-                        onClick={() => fetchCounts()}
-                      >
-                        Refresh
-                      </Button>
-                    </div>
+                    <div className="p-4 text-center text-gray-500">No recent activities</div>
                   )}
                 </div>
               </CardContent>
@@ -420,97 +393,6 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Card className="border border-gray-200 shadow-sm h-full">
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="text-xl font-bold text-gray-800">Volunteer Distribution</CardTitle>
-                <CardDescription>
-                  By department
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-6">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: 0.8, delay: 0.5 }}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-sm font-medium text-gray-700">Computer Science</p>
-                      <span className="text-sm font-semibold text-gray-900">8</span>
-                    </div>
-                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                      <motion.div 
-                        className="h-full bg-blue-600 rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: '32%' }}
-                        transition={{ duration: 1, delay: 0.6 }}
-                      ></motion.div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1 text-right">32%</p>
-                  </motion.div>
-                  
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: 0.8, delay: 0.7 }}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-sm font-medium text-gray-700">Medical</p>
-                      <span className="text-sm font-semibold text-gray-900">6</span>
-                    </div>
-                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                      <motion.div 
-                        className="h-full bg-blue-600 rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: '24%' }}
-                        transition={{ duration: 1, delay: 0.8 }}
-                      ></motion.div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1 text-right">24%</p>
-                  </motion.div>
-                  
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: 0.8, delay: 0.9 }}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-sm font-medium text-gray-700">Engineering</p>
-                      <span className="text-sm font-semibold text-gray-900">5</span>
-                    </div>
-                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                      <motion.div 
-                        className="h-full bg-blue-600 rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: '20%' }}
-                        transition={{ duration: 1, delay: 1 }}
-                      ></motion.div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1 text-right">20%</p>
-                  </motion.div>
-                  
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: 0.8, delay: 1.1 }}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-sm font-medium text-gray-700">Others</p>
-                      <span className="text-sm font-semibold text-gray-900">5</span>
-                    </div>
-                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                      <motion.div 
-                        className="h-full bg-blue-600 rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: '20%' }}
-                        transition={{ duration: 1, delay: 1.2 }}
-                      ></motion.div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1 text-right">20%</p>
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
           </motion.div>
         </div>
       </motion.div>

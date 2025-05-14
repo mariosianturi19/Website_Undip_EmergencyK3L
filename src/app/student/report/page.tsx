@@ -357,18 +357,6 @@ export default function ReportPhotoPage() {
                     Choose File
                   </Button>
                 </motion.div>
-                
-                <motion.div className="flex-1" whileHover={{ y: -2 }} whileTap={{ y: 1 }}>
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    className="w-full"
-                    onClick={handleCameraAccess}
-                  >
-                    <Camera className="h-4 w-4 mr-2" />
-                    Take Photo
-                  </Button>
-                </motion.div>
               </div>
             </div>
 

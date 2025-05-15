@@ -125,19 +125,52 @@ export default function ReportList() {
         },
       });
       
-      if (!response.ok) {
-        throw new Error(`Gagal mengambil laporan: ${response.status}`);
+      // Mendapatkan data respons sebagai teks dulu
+      const responseText = await response.text();
+      
+      // Coba mengonversi teks respons menjadi JSON
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error("Gagal mengurai respons JSON:", e);
+        throw new Error(`Gagal mengurai respons: ${responseText}`);
       }
       
-      const data = await response.json();
+      // Periksa status respons
+      if (!response.ok) {
+        // Ekstrak pesan kesalahan dari respons jika ada
+        const errorMessage = data.message || `Gagal mengambil laporan: ${response.status}`;
+        throw new Error(errorMessage);
+      }
+      
       console.log("Data laporan:", data);
       
-      // Pastikan data adalah array
-      const reportsArray = Array.isArray(data) ? data : data.data || [];
-      setReports(reportsArray);
+      // Cek struktur respons
+      // Jika respons adalah array, gunakan langsung
+      if (Array.isArray(data)) {
+        setReports(data);
+      } 
+      // Jika respons memiliki bidang data yang merupakan array
+      else if (data.data && Array.isArray(data.data)) {
+        setReports(data.data);
+      }
+      // Jika respons memiliki bidang report/reports
+      else if (data.reports && Array.isArray(data.reports)) {
+        setReports(data.reports);
+      }
+      // Jika respons memiliki bidang report tunggal
+      else if (data.report) {
+        setReports([data.report]);
+      }
+      // Jika tidak ada struktur yang dikenal, set array kosong
+      else {
+        console.warn("Format respons API tidak dikenal:", data);
+        setReports([]);
+      }
     } catch (error) {
       console.error("Error mengambil laporan:", error);
-      toast.error("Gagal memuat laporan");
+      toast.error(error instanceof Error ? error.message : "Gagal memuat laporan");
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -146,34 +179,49 @@ export default function ReportList() {
 
   // Format tanggal untuk tampilan yang lebih baik
   const formatDate = (dateString: string) => {
+    // Create date with the original timezone
+    const date = new Date(dateString);
+    
+    // Format date to Indonesian format
+    return new Intl.DateTimeFormat('id-ID', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(date);
+  };
+
+  // Format jam dalam WIB
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    
+    // Format time in 24-hour format with WIB timezone
+    return new Intl.DateTimeFormat('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Jakarta'
+    }).format(date) + ' WIB';
+  };
+
+  // Format untuk detail lengkap
+  const formatFullDateTime = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'Asia/Jakarta',
+      hour12: false
     };
-    return new Date(dateString).toLocaleDateString('id-ID', options);
-  };
-
-  // Format waktu yang lalu
-  const formatTimeAgo = (dateString: string) => {
-    const now = new Date();
-    const date = new Date(dateString);
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) return `${diffInSeconds} detik yang lalu`;
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} menit yang lalu`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} jam yang lalu`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} hari yang lalu`;
-    
-    return formatDate(dateString);
+    return new Date(dateString).toLocaleDateString('id-ID', options) + ' WIB';
   };
 
   // Format jenis masalah untuk tampilan yang lebih baik
   const formatProblemType = (type: string) => {
     const typeMap: { [key: string]: string } = {
       "electrical": "Masalah Listrik",
+      "electricity": "Masalah Listrik",
       "tree": "Bahaya Pohon",
       "stairs": "Masalah Tangga",
       "elevator": "Masalah Lift",
@@ -529,11 +577,11 @@ export default function ReportList() {
                           <td className="px-4 py-3 whitespace-nowrap">
                             <div className="flex flex-col">
                               <div className="text-sm font-medium text-gray-900">
-                                {new Date(report.created_at).toLocaleDateString()}
+                                {formatDate(report.created_at)}
                               </div>
                               <div className="text-xs text-gray-500 flex items-center">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                {formatTimeAgo(report.created_at)}
+                                <Clock className="h-3 w-3 mr-1" />
+                                {formatTime(report.created_at)}
                               </div>
                             </div>
                           </td>
@@ -657,7 +705,7 @@ export default function ReportList() {
                     
                     <div>
                       <p className="text-sm font-medium text-gray-500">Dikirim pada</p>
-                      <p className="text-sm text-gray-900 mt-1">{formatDate(selectedReport.created_at)}</p>
+                      <p className="text-sm text-gray-900 mt-1">{formatFullDateTime(selectedReport.created_at)}</p>
                     </div>
                     
                     <div>
@@ -683,68 +731,68 @@ export default function ReportList() {
                     {selectedReport.admin_notes && (
                       <div>
                         <p className="text-sm font-medium text-gray-500">Catatan Admin</p>
-                        <p className="text-sm text-gray-900 mt-1 whitespace-pre-line bg-gray-50 p-2 rounded border border-gray-200">{selectedReport.admin_notes}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-3">Bukti Foto</h3>
-                  <div className="bg-gray-100 rounded-lg overflow-hidden border">
-                    {selectedReport.photo_url ? (
-                      <img
-                        src={selectedReport.photo_url}
-                        alt={`Laporan #${selectedReport.id}`}
-                        className="w-full object-contain max-h-[400px]"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-64 bg-gray-100 text-gray-400">
-                        <p>Tidak ada gambar tersedia</p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="mt-6">
-                    <h3 className="text-lg font-semibold text-gray-700 mb-3">Pelapor</h3>
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-blue-600 font-medium">
-                          {selectedReport.user?.name ? selectedReport.user.name.charAt(0).toUpperCase() : "U"}
-                        </span>
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900">{selectedReport.user?.name}</p>
-                        <p className="text-xs text-gray-500">{selectedReport.user?.email}</p>
-                        {selectedReport.user?.nim && (
-                          <p className="text-xs text-gray-500">NIM: {selectedReport.user.nim}</p>
-                        )}
-                        {selectedReport.user?.jurusan && (
-                          <p className="text-xs text-gray-500">Jurusan: {selectedReport.user.jurusan}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsDetailOpen(false)}>
-                  Tutup
-                </Button>
-                <Button variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100">
-                  <Info className="h-4 w-4 mr-2" />
-                  Tandai Dalam Proses
-                </Button>
-                <Button className="bg-green-600 hover:bg-green-700">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Tandai Selesai
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+                       <p className="text-sm text-gray-900 mt-1 whitespace-pre-line bg-gray-50 p-2 rounded border border-gray-200">{selectedReport.admin_notes}</p>
+                     </div>
+                   )}
+                 </div>
+               </div>
+               
+               <div>
+                 <h3 className="text-lg font-semibold text-gray-700 mb-3">Bukti Foto</h3>
+                 <div className="bg-gray-100 rounded-lg overflow-hidden border">
+                   {selectedReport.photo_url ? (
+                     <img
+                       src={selectedReport.photo_url}
+                       alt={`Laporan #${selectedReport.id}`}
+                       className="w-full object-contain max-h-[400px]"
+                     />
+                   ) : (
+                     <div className="flex items-center justify-center h-64 bg-gray-100 text-gray-400">
+                       <p>Tidak ada gambar tersedia</p>
+                     </div>
+                   )}
+                 </div>
+                 
+                 <div className="mt-6">
+                   <h3 className="text-lg font-semibold text-gray-700 mb-3">Pelapor</h3>
+                   <div className="flex items-center">
+                     <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                       <span className="text-blue-600 font-medium">
+                         {selectedReport.user?.name ? selectedReport.user.name.charAt(0).toUpperCase() : "U"}
+                       </span>
+                     </div>
+                     <div className="ml-3">
+                       <p className="text-sm font-medium text-gray-900">{selectedReport.user?.name}</p>
+                       <p className="text-xs text-gray-500">{selectedReport.user?.email}</p>
+                       {selectedReport.user?.nim && (
+                         <p className="text-xs text-gray-500">NIM: {selectedReport.user.nim}</p>
+                       )}
+                       {selectedReport.user?.jurusan && (
+                         <p className="text-xs text-gray-500">Jurusan: {selectedReport.user.jurusan}</p>
+                       )}
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+             
+             <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex justify-end space-x-2">
+               <Button variant="outline" onClick={() => setIsDetailOpen(false)}>
+                 Tutup
+               </Button>
+               <Button variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100">
+                 <Info className="h-4 w-4 mr-2" />
+                 Tandai Dalam Proses
+               </Button>
+               <Button className="bg-green-600 hover:bg-green-700">
+                 <CheckCircle className="h-4 w-4 mr-2" />
+                 Tandai Selesai
+               </Button>
+             </div>
+           </motion.div>
+         </motion.div>
+       )}
+     </AnimatePresence>
+   </div>
+ );
 }

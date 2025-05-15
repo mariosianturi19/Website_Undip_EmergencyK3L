@@ -170,31 +170,6 @@ export default function PanicButtonPage() {
 
   return (
     <StudentLayout>
-      {/* Kartu Profil - Ditingkatkan dengan animasi */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="absolute top-20 right-4 z-10 md:right-8 lg:right-12 max-w-xs w-full sm:w-auto"
-      >
-        <Card className="shadow-md border-gray-200 overflow-hidden">
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center mr-4 shadow-sm">
-                <span className="text-xl font-semibold text-white">
-                  {getInitial(userData?.name)}
-                </span>
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-800">{userData?.name || "Nama Mahasiswa"}</h3>
-                <p className="text-sm text-gray-600">{userData?.nim || "Tanpa NIM"}</p>
-                <p className="text-sm text-gray-600">{userData?.jurusan || "Tanpa Jurusan"}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
       <div className="container mx-auto px-4 flex flex-col items-center justify-center min-h-[80vh] max-w-3xl">
         {/* Bagian Judul dengan Animasi */}
         <motion.div 

@@ -150,7 +150,7 @@ const onSubmit = async (data: LoginFormValues) => {
         <div className="w-full max-w-md lg:w-1/2">
           <div className="overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-300 hover:shadow-2xl">
             <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-t-2xl">
-              <h2 className="text-2xl font-bold text-white text-center">Selamat Datang Kembali</h2>
+              <h2 className="text-2xl font-bold text-white text-center">Silahkan Masuk</h2>
               <p className="text-gray-300 text-center mt-1">Masuk untuk mengakses SIGAP UNDIP</p>
             </div>
 

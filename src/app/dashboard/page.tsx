@@ -273,10 +273,6 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <span className="text-3xl font-bold text-gray-800">{volunteerCount}</span>
-                    <span className="text-sm text-green-600 flex items-center mt-1">
-                      <TrendingUp className="h-3 w-3 mr-1" />
-                      Relawan aktif
-                    </span>
                   </div>
                   <div className="h-12 w-12 bg-blue-50 rounded-full flex items-center justify-center">
                     <Users className="h-6 w-6 text-blue-600" />
@@ -304,10 +300,6 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <span className="text-3xl font-bold text-gray-800">{reportCount}</span>
-                    <span className="text-sm text-green-600 flex items-center mt-1">
-                      <TrendingUp className="h-3 w-3 mr-1" />
-                      Total terkirim
-                    </span>
                   </div>
                   <div className="h-12 w-12 bg-green-50 rounded-full flex items-center justify-center">
                     <Image className="h-6 w-6 text-green-600" />
@@ -335,10 +327,6 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <span className="text-3xl font-bold text-gray-800">{alertCount}</span>
-                    <span className="text-sm text-red-600 flex items-center mt-1">
-                      <ArrowDown className="h-3 w-3 mr-1" />
-                      24 jam terakhir
-                    </span>
                   </div>
                   <div className="h-12 w-12 bg-red-50 rounded-full flex items-center justify-center">
                     <AlertTriangle className="h-6 w-6 text-red-600" />

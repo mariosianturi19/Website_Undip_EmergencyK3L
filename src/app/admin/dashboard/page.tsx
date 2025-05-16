@@ -1,4 +1,3 @@
-// src/app/dashboard/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -13,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
@@ -46,7 +44,7 @@ export default function Dashboard() {
     
     // Jika pengguna adalah pengguna biasa, arahkan ke halaman mahasiswa
     if (userRole === "user") {
-      router.push("/student");
+      router.push("/student/emergency");
       return;
     }
     
@@ -229,169 +227,167 @@ export default function Dashboard() {
 
   // Konten ikhtisar dasbor
   return (
-    <DashboardLayout>
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="space-y-8"
-      >
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h1 className="text-2xl font-bold text-gray-800">Dasbor Admin</h1>
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex space-x-2"
-          >
-          </motion.div>
-        </div>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-8"
+    >
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-2xl font-bold text-gray-800">Dasbor Admin</h1>
+        </motion.div>
+        
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex space-x-2"
+        >
+        </motion.div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <motion.div 
-            custom={0} 
-            initial="hidden" 
-            animate="visible" 
-            variants={cardVariants}
-            whileHover={{ y: -5, transition: { duration: 0.2 } }}
-          >
-            <Card className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
-              <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-100">
-                <CardTitle className="text-blue-900 flex items-center text-lg">
-                  <Users className="h-5 w-5 mr-2 text-blue-600" />
-                  Total Relawan
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-bold text-gray-800">{volunteerCount}</span>
-                  </div>
-                  <div className="h-12 w-12 bg-blue-50 rounded-full flex items-center justify-center">
-                    <Users className="h-6 w-6 text-blue-600" />
-                  </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          custom={0} 
+          initial="hidden" 
+          animate="visible" 
+          variants={cardVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+        >
+          <Card className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+            <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-100">
+              <CardTitle className="text-blue-900 flex items-center text-lg">
+                <Users className="h-5 w-5 mr-2 text-blue-600" />
+                Total Relawan
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-3xl font-bold text-gray-800">{volunteerCount}</span>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div 
-            custom={1} 
-            initial="hidden" 
-            animate="visible" 
-            variants={cardVariants}
-            whileHover={{ y: -5, transition: { duration: 0.2 } }}
-          >
-            <Card className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
-              <CardHeader className="pb-2 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-100">
-                <CardTitle className="text-green-900 flex items-center text-lg">
-                  <Image className="h-5 w-5 mr-2 text-green-600" />
-                  Laporan Foto
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-bold text-gray-800">{reportCount}</span>
-                  </div>
-                  <div className="h-12 w-12 bg-green-50 rounded-full flex items-center justify-center">
-                    <Image className="h-6 w-6 text-green-600" />
-                  </div>
+                <div className="h-12 w-12 bg-blue-50 rounded-full flex items-center justify-center">
+                  <Users className="h-6 w-6 text-blue-600" />
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-          <motion.div 
-            custom={2} 
-            initial="hidden" 
-            animate="visible" 
-            variants={cardVariants}
-            whileHover={{ y: -5, transition: { duration: 0.2 } }}
-          >
-            <Card className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
-              <CardHeader className="pb-2 bg-gradient-to-r from-red-50 to-red-100 border-b border-red-100">
-                <CardTitle className="text-red-900 flex items-center text-lg">
-                  <AlertTriangle className="h-5 w-5 mr-2 text-red-600" />
-                  Peringatan Darurat
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-bold text-gray-800">{alertCount}</span>
-                  </div>
-                  <div className="h-12 w-12 bg-red-50 rounded-full flex items-center justify-center">
-                    <AlertTriangle className="h-6 w-6 text-red-600" />
-                  </div>
+        <motion.div 
+          custom={1} 
+          initial="hidden" 
+          animate="visible" 
+          variants={cardVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+        >
+          <Card className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+            <CardHeader className="pb-2 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-100">
+              <CardTitle className="text-green-900 flex items-center text-lg">
+                <Image className="h-5 w-5 mr-2 text-green-600" />
+                Laporan Foto
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-3xl font-bold text-gray-800">{reportCount}</span>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+                <div className="h-12 w-12 bg-green-50 rounded-full flex items-center justify-center">
+                  <Image className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <motion.div 
-            className="lg:col-span-2"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <Card className="border border-gray-200 shadow-sm h-full">
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="text-xl font-bold text-gray-800">Aktivitas Terbaru</CardTitle>
-                <CardDescription>
-                  Ikhtisar aktivitas sistem terbaru
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="divide-y divide-gray-100">
-                  {activities.length > 0 ? (
-                    activities.map((activity, index) => (
-                      <motion.div
-                        key={activity.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 + (index * 0.1), duration: 0.3 }}
-                        className="p-4 hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="flex items-start space-x-4">
-                          <div className={`p-2 rounded-full ${getIconBgColor(activity.type)}`}>
-                            {getActivityIcon(activity.type)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <p className="font-medium text-gray-900 truncate">{activity.title}</p>
-                              <span className="text-xs text-gray-500 whitespace-nowrap">{formatTimeAgo(activity.timestamp)}</span>
-                            </div>
-                            <p className="text-sm text-gray-600 mt-0.5">{activity.description}</p>
-                          </div>
+        <motion.div 
+          custom={2} 
+          initial="hidden" 
+          animate="visible" 
+          variants={cardVariants}
+          whileHover={{ y: -5, transition: { duration: 0.2 } }}
+        >
+          <Card className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+            <CardHeader className="pb-2 bg-gradient-to-r from-red-50 to-red-100 border-b border-red-100">
+              <CardTitle className="text-red-900 flex items-center text-lg">
+                <AlertTriangle className="h-5 w-5 mr-2 text-red-600" />
+                Peringatan Darurat
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-3xl font-bold text-gray-800">{alertCount}</span>
+                </div>
+                <div className="h-12 w-12 bg-red-50 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="h-6 w-6 text-red-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div 
+          className="lg:col-span-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Card className="border border-gray-200 shadow-sm h-full">
+            <CardHeader className="pb-2 border-b">
+              <CardTitle className="text-xl font-bold text-gray-800">Aktivitas Terbaru</CardTitle>
+              <CardDescription>
+                Ikhtisar aktivitas sistem terbaru
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="divide-y divide-gray-100">
+                {activities.length > 0 ? (
+                  activities.map((activity, index) => (
+                    <motion.div
+                      key={activity.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 + (index * 0.1), duration: 0.3 }}
+                      className="p-4 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-start space-x-4">
+                        <div className={`p-2 rounded-full ${getIconBgColor(activity.type)}`}>
+                          {getActivityIcon(activity.type)}
                         </div>
-                      </motion.div>
-                    ))
-                  ) : (
-                    <div className="p-4 text-center text-gray-500">Tidak ada aktivitas terbaru</div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <p className="font-medium text-gray-900 truncate">{activity.title}</p>
+                            <span className="text-xs text-gray-500 whitespace-nowrap">{formatTimeAgo(activity.timestamp)}</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-0.5">{activity.description}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-gray-500">Tidak ada aktivitas terbaru</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-          </motion.div>
-        </div>
-      </motion.div>
-    </DashboardLayout>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+        </motion.div>
+      </div>
+    </motion.div>
   );
 }

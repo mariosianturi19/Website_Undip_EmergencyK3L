@@ -1,4 +1,4 @@
-// src/app/dashboard/layout.tsx
+// src/app/admin/layout.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { getUserRole } from "@/lib/auth";
+import DashboardLayout from "@/components/layouts/DashboardLayout";
 
-export default function DashboardLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -23,16 +24,16 @@ export default function DashboardLayout({
       try {
         const role = getUserRole();
         
-        // Jika pengguna adalah pengguna biasa, arahkan ke halaman mahasiswa
+        // Jika pengguna adalah mahasiswa biasa, arahkan ke halaman mahasiswa
         if (role === "user") {
-          router.push("/student");
+          router.push("/student/emergency");
           return;
         }
         
         setIsLoading(false);
       } catch (error) {
         console.error("Kesalahan pemeriksaan otentikasi:", error);
-        router.push("/login");
+        router.push("/auth/login");
       }
     };
 
@@ -51,5 +52,5 @@ export default function DashboardLayout({
     );
   }
 
-  return <ProtectedRoute>{children}</ProtectedRoute>;
+  return <ProtectedRoute><DashboardLayout>{children}</DashboardLayout></ProtectedRoute>;
 }

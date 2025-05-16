@@ -1,3 +1,4 @@
+// src/components/layouts/StudentLayout.tsx
 "use client";
 
 import React from "react";
@@ -24,7 +25,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
   const handleLogout = () => {
     clearAuthTokens();
     toast.success("Berhasil keluar dari sistem");
-    router.push("/login");
+    router.push("/auth/login"); // Update path: Sebelumnya /login
   };
 
   return (
@@ -39,7 +40,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
         <div className="container mx-auto px-4 py-3">
           <div className="flex justify-between items-center">
             <div className="flex space-x-4 items-center">
-              <Link href="/student" className="font-semibold text-lg flex items-center">
+              <Link href="/student/emergency" className="font-semibold text-lg flex items-center">
                 <motion.div
                   whileHover={{ rotate: 10 }}
                   className="mr-2"
@@ -58,9 +59,9 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
               {/* Navigasi Desktop */}
               <div className="hidden sm:flex space-x-1">
                 <Link
-                  href="/student"
+                  href="/student/emergency" // Update path: Sebelumnya /student
                   className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
-                    pathname === "/student"
+                    pathname === "/student/emergency"
                       ? "bg-white/20 text-white"
                       : "text-gray-300 hover:bg-white/10 hover:text-white"
                   }`}
@@ -113,10 +114,10 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
               >
                 <div className="flex flex-col p-2 space-y-1">
                   <Link
-                    href="/student"
+                    href="/student/emergency" // Update path: Sebelumnya /student
                     onClick={() => setIsMenuOpen(false)}
                     className={`px-4 py-3 rounded-md text-sm font-semibold transition-colors ${
-                      pathname === "/student"
+                      pathname === "/student/emergency"
                         ? "bg-white/20 text-white"
                         : "text-gray-300 hover:bg-white/10 hover:text-white"
                     }`}

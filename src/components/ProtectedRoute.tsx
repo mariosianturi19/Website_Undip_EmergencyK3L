@@ -21,7 +21,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     
     const checkAuth = async () => {
       if (!isAuthenticated()) {
-        router.push("/login");
+        router.push("/auth/login"); // Update path: Sebelumnya /login
         return;
       }
       
@@ -29,14 +29,14 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
       const role = getUserRole();
       
       // Jika pengguna mencoba mengakses dasbor tetapi adalah pengguna biasa
-      if (pathname.startsWith("/dashboard") && role === "user") {
-        router.push("/student");
+      if (pathname.startsWith("/admin") && role === "user") {
+        router.push("/student/emergency"); // Update path: Sebelumnya /student
         return;
       }
       
       // Jika pengguna mencoba mengakses halaman mahasiswa tetapi adalah admin/relawan
       if (pathname.startsWith("/student") && (role === "admin" || role === "volunteer")) {
-        router.push("/dashboard");
+        router.push("/admin/dashboard"); // Update path: Sebelumnya /dashboard
         return;
       }
       

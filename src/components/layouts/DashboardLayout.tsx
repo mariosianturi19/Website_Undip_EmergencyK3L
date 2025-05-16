@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const handleLogout = () => {
     clearAuthTokens();
     toast.success("Berhasil keluar dari sistem");
-    router.push("/login");
+    router.push("/auth/login"); // Update path: Sebelumnya /login
   };
 
   // Variasi animasi
@@ -101,11 +101,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return pathname === path;
   };
 
-  // Menu items
+  // Menu items - Update paths
   const menuItems = [
-    { icon: PieChart, label: "Dashboard", path: "/dashboard" },
-    { icon: Users, label: "Relawan", path: "/dashboard/volunteers" },
-    { icon: FileText, label: "Laporan", path: "/dashboard/reports" }
+    { icon: PieChart, label: "Dashboard", path: "/admin/dashboard" }, // Update path: Sebelumnya /dashboard
+    { icon: Users, label: "Relawan", path: "/admin/volunteers" },    // Update path: Sebelumnya /dashboard/volunteers
+    { icon: FileText, label: "Laporan", path: "/admin/reports" }     // Update path: Sebelumnya /dashboard/reports
   ];
 
   return (

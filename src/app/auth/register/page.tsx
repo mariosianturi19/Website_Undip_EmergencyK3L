@@ -1,3 +1,4 @@
+// src/app/auth/register/page.tsx
 "use client"
 
 import { useState } from "react"
@@ -95,7 +96,7 @@ export default function RegisterPage() {
       })
 
       // Arahkan ke halaman login
-      router.push("/login")
+      router.push("/auth/login")
     } catch (error) {
       console.error("Kesalahan pendaftaran:", error)
 
@@ -400,7 +401,7 @@ export default function RegisterPage() {
 
                 <div className="flex justify-center pt-2">
                   <Link
-                    href="/login"
+                    href="/auth/login"
                     className="text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium"
                   >
                     Sudah punya akun? Masuk

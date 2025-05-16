@@ -1,3 +1,4 @@
+// src/app/auth/login/page.tsx
 "use client"
 
 import { useState } from "react"
@@ -89,9 +90,9 @@ const onSubmit = async (data: LoginFormValues) => {
     // Arahkan berdasarkan peran
     const userRole = result.user?.role || "";
     if (userRole === "user") {
-      router.push("/student"); // Pengguna biasa pergi ke halaman tombol panik mahasiswa
+      router.push("/student/emergency"); // Update path: Sebelumnya /student
     } else {
-      router.push("/dashboard"); // Admin dan relawan pergi ke dasbor
+      router.push("/admin/dashboard"); // Update path: Sebelumnya /dashboard
     }
   } catch (error) {
     console.error("Kesalahan login:", error);
@@ -114,17 +115,17 @@ const onSubmit = async (data: LoginFormValues) => {
 
   return (
     <div className="relative flex min-h-screen w-full">
-          {/* Gambar Latar Belakang */}
-          <div className="absolute inset-0 z-0">
-          <Image
-            src="/images/UPT-K3L-logo.jpg"
-            alt="UPT K3L Universitas Diponegoro"
-            fill
-            className="object-cover object-center"
-            priority
-          />
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-    </div>
+      {/* Gambar Latar Belakang */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/UPT-K3L-logo.jpg"
+          alt="UPT K3L Universitas Diponegoro"
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+      </div>
 
       {/* Wadah Utama */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:flex-row lg:px-8">
@@ -257,7 +258,7 @@ const onSubmit = async (data: LoginFormValues) => {
 
                 <div className="flex justify-center pt-2">
                   <Link
-                    href="/register"
+                    href="/auth/register" // Update path: Sebelumnya /register
                     className="text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium"
                   >
                     Belum punya akun? Daftar
